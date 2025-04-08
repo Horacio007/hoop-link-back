@@ -20,7 +20,10 @@ export class Permiso {
   @Column("bit", { name: "total", default: () => "'0'" })
   total: boolean;
 
-  @Column("datetime", { name: "fecha_creacion", default: () => "'now()'" })
+  @Column("datetime", {
+    name: "fecha_creacion",
+    default: () => "CURRENT_TIMESTAMP",
+  })
   fechaCreacion: Date;
 
   @Column("int", { name: "usuario_creacion", nullable: true })

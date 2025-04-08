@@ -1,12 +1,12 @@
 import { PassportStrategy } from "@nestjs/passport";
 import { ExtractJwt, Strategy } from "passport-jwt";
-import { Usuario } from "../../usuario/entities/usuario.entity";
+import { Usuario } from "../../entities/Usuario";
 import { JwtPayload } from "../interfaces/jwt-payload.interface";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { ConfigService } from "@nestjs/config";
 import { ErrorHandleService } from '../../common/error/common.error-handle.service';
-import { TypeError } from '../../common/enums/errors/common.error-handle.enum';
+import { ErrorMethods } from '../../common/enums/errors/common.error-handle.enum';
 import { Injectable } from "@nestjs/common";
 
 @Injectable()
@@ -19,7 +19,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
         private readonly errorHandleService:ErrorHandleService
     ) {
         super({
-            secretOrKey: configService.get('jwtPrivateKey'),
+            secretOrKey: configService.get('JWT_PRIVATE_KEY'),
             jwtFromRequest: ExtractJwt.fromHeader("x-auth-token"),
         })
     }
@@ -31,7 +31,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     //     //     select:{id:true, nombre:true, usuario:true, password: true}
     //     // });
 
-    //     // if (!user) this.errorHandleService.errorHandle('Token not valid.', TypeError.UnauthorizedException);
+    //     // if (!user) this.errorHandleService.errorHandle('Token not valid.', ErrorMethods.UnauthorizedException);
 
     //     // return user;
     // }

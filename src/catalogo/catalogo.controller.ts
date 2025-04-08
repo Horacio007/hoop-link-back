@@ -7,28 +7,19 @@ import { UpdateCatalogoDto } from './dto/update-catalogo.dto';
 export class CatalogoController {
   constructor(private readonly catalogoService: CatalogoService) {}
 
-  @Post()
-  create(@Body() createCatalogoDto: CreateCatalogoDto) {
-    return this.catalogoService.create(createCatalogoDto);
+  @Get('getAllTipoUsuario')
+  async getAllTipoUsuario() {
+    return await this.catalogoService.getAllTipoUsuario();
   }
 
-  @Get()
-  findAll() {
-    return this.catalogoService.findAll();
+  @Get('getAllEstado')
+  async getAllEstado() {
+    return await this.catalogoService.getAllEstado();
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.catalogoService.findOne(+id);
+  @Get('getAllMunicipioByEstado/:id')
+  async getAllMunicipioByEstado(@Param('id') id: string) {
+    return await this.catalogoService.getAllMunicipioByEstado(id);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateCatalogoDto: UpdateCatalogoDto) {
-    return this.catalogoService.update(+id, updateCatalogoDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.catalogoService.remove(+id);
-  }
 }

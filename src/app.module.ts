@@ -10,6 +10,8 @@ import { Rol } from './entities/Rol';
 import { TipoUsuario } from './entities/TipoUsuario';
 import { Usuario } from './entities/Usuario';
 import { CatalogoModule } from './catalogo/catalogo.module';
+import { Estado } from './entities/Estado';
+import { Municipio } from './entities/Municipio';
 
 
 @Module({
@@ -17,11 +19,11 @@ import { CatalogoModule } from './catalogo/catalogo.module';
     ConfigModule.forRoot(),
     TypeOrmModule.forRoot({
       type: 'mysql',
-      host: process.env.host,
-      port: +process.env.DB_PORT,
-      database: process.env.database,
-      username: process.env.user,
-      password: process.env.password,
+      host: process.env.HOST,
+      port: +process.env.DATABASE_PORT,
+      database: process.env.DATABASE_NAME,
+      username: process.env.DATABASE_USER,
+      password: process.env.DATABASE_PASSWORD,
       autoLoadEntities: true,
       synchronize: true,
       entities: [
@@ -30,7 +32,9 @@ import { CatalogoModule } from './catalogo/catalogo.module';
         Permiso,
         Rol,
         TipoUsuario,
-        Usuario
+        Usuario,
+        Estado,
+        Municipio
       ]
     }),
     AuthModule,
