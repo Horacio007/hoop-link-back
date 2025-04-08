@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Usuario } from '../usuario/entities/usuario.entity';
+import { Usuario } from '../entities/Usuario';
 import { Repository } from 'typeorm';
 import { LoginUserDTO } from './dto/login-user.dto';
 import * as bcrypt from 'bcrypt';
 import { ErrorHandleService } from '../common/error/common.error-handle.service';
-import { TypeError } from '../common/enums/errors/common.error-handle.enum';
+import { ErrorMethods } from '../common/enums/errors/common.error-handle.enum';
 import { JwtPayload } from './interfaces/jwt-payload.interface';
 import { JwtService } from '@nestjs/jwt';
 import { use } from 'passport';
@@ -35,8 +35,8 @@ export class AuthService {
     // };
   }
 
-  private getJwtToken(payload: JwtPayload) {
-    return this.jwtService.sign(payload);
+  public async getJwtToken(payload: JwtPayload) {
+    return await this.jwtService.sign(payload);
   }
   
 

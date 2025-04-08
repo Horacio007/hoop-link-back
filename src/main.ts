@@ -1,6 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { Logger, ValidationPipe } from '@nestjs/common';
+import * as hbs from 'hbs';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -8,14 +9,38 @@ async function bootstrap() {
 
   app.useGlobalPipes(
     new ValidationPipe({
+      transform: true,
       whitelist: true,
       forbidNonWhitelisted: true,
     })
   );
 
+  // app.setBaseViewsDir(__dirname + '/views');
+  hbs.registerPartials(__dirname + '/views/partials');
+  // app.setViewEngine('hbs');
+  // app.set('view options', { layout: 'index' });
+
+  app.enableCors({
+    origin: (origin, callback) => {
+      // Permite solicitudes sin origen (Postman, backends, etc.)
+      if (!origin) return callback(null, true);
+
+      const allowedOrigins = ['http://localhost:4200', 'https://tu-dominio.com'];
+
+      if (allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    allowedHeaders: 'Content-Type, Authorization',
+    credentials: true, // Permitir credenciales si la petición las tiene
+  });
+
   app.setGlobalPrefix('api');
 
-  await app.listen(process.env.port_launch);
-  logger.log(`App running on port ${process.env.port_launch}`);
+  await app.listen(process.env.PORT_LAUNCH);
+  logger.log(`App running on port ${process.env.PORT_LAUNCH}`);
 }
 bootstrap();

@@ -6,11 +6,17 @@ import {
   ManyToOne,
   PrimaryGeneratedColumn,
 } from "typeorm";
-import { Estatus } from "./Estatus";
+import { Municipio } from "./Municipio";
 import { TipoUsuario } from "./TipoUsuario";
+import { Estatus } from "./Estatus";
 
+@Index("correo", ["correo"], { unique: true })
+@Index("telefono", ["telefono"], { unique: true })
+@Index("IDX_349ecb64acc4355db443ca17cb", ["correo"], { unique: true })
+@Index("IDX_dd13ecd2eec69592d312b79392", ["telefono"], { unique: true })
 @Index("FK_estatus_usuario", ["estatusId"], {})
 @Index("FK_tipo_usuario_usuario", ["tipoUsuarioId"], {})
+@Index("FK_municipio_usuario", ["municipioId"], {})
 @Entity("usuario", { schema: "hoop-link" })
 export class Usuario {
   @PrimaryGeneratedColumn({ type: "int", name: "usuario_id" })
@@ -34,14 +40,23 @@ export class Usuario {
   @Column("datetime", { name: "fecha_nacimiento" })
   fechaNacimiento: Date;
 
+  @Column("int", { name: "municipio_id" })
+  municipioId: number;
+
   @Column("varchar", { name: "residencia", length: 100 })
   residencia: string;
 
-  @Column("varchar", { name: "correo", length: 100 })
+  @Column("varchar", { name: "correo", unique: true, length: 100 })
   correo: string;
 
-  @Column("varchar", { name: "telefono", length: 100 })
+  @Column("varchar", { name: "telefono", unique: true, length: 100 })
   telefono: string;
+
+  @Column("varchar", { name: "contrasena", length: 250 })
+  contrasena: string;
+
+  @Column("bit", { name: "verificado", default: () => "'0x00'" })
+  verificado: boolean;
 
   @Column("timestamp", {
     name: "fecha_creacion",
@@ -58,12 +73,12 @@ export class Usuario {
   @Column("int", { name: "usuario_edicion", nullable: true })
   usuarioEdicion: number | null;
 
-  @ManyToOne(() => Estatus, (estatus) => estatus.usuarios, {
+  @ManyToOne(() => Municipio, (municipio) => municipio.usuarios, {
     onDelete: "NO ACTION",
     onUpdate: "NO ACTION",
   })
-  @JoinColumn([{ name: "estatus_id", referencedColumnName: "estatusId" }])
-  estatus: Estatus;
+  @JoinColumn([{ name: "municipio_id", referencedColumnName: "municipioId" }])
+  municipio: Municipio;
 
   @ManyToOne(() => TipoUsuario, (tipoUsuario) => tipoUsuario.usuarios, {
     onDelete: "NO ACTION",
@@ -73,4 +88,11 @@ export class Usuario {
     { name: "tipo_usuario_id", referencedColumnName: "tipoUsuarioId" },
   ])
   tipoUsuario: TipoUsuario;
+
+  @ManyToOne(() => Estatus, (estatus) => estatus.usuarios, {
+    onDelete: "NO ACTION",
+    onUpdate: "NO ACTION",
+  })
+  @JoinColumn([{ name: "estatus_id", referencedColumnName: "estatusId" }])
+  estatus: Estatus;
 }

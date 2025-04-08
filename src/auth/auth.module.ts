@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Usuario } from '../usuario/entities/usuario.entity';
+import { Usuario } from '../entities/Usuario';
 import { CommonModule } from '../common/common.module';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { ConfigModule, ConfigService } from '@nestjs/config';
@@ -24,7 +24,7 @@ import { PassportModule } from '@nestjs/passport';
       ],
       useFactory:(configService:ConfigService) => {
         return {
-          secret: configService.get('jwtPrivateKey'),
+          secret: configService.get('JWT_PRIVATE_KEY'),
           signOptions: {
             expiresIn: '2h'
           }

@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import * as generatePassword from 'generate-password';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class PasswordService {
@@ -13,6 +14,19 @@ export class PasswordService {
             // lowercase: true, // Incluye letras minúsculas
             // excludeSimilarCharacters: true, // Excluye caracteres similares como 'i' y 'l'
         });
+    }
+
+    // Encriptar la contraseña
+    async hashPassword(password: string): Promise<string> {
+        const salt = await bcrypt.genSalt(10); // Generar un "salt"
+        const hashedPassword = await bcrypt.hash(password, salt); // Encriptar la contraseña con el salt
+        return hashedPassword;
+    }
+    
+    // Verificar la contraseña con el hash guardado
+    async validatePassword(password: string, hash: string): Promise<boolean> {
+        const isMatch = await bcrypt.compare(password, hash); // Compara la contraseña con el hash guardado
+        return isMatch;
     }
 
 }
