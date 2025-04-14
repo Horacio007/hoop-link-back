@@ -38,6 +38,12 @@ export class AuthService {
   public async getJwtToken(payload: JwtPayload) {
     return await this.jwtService.sign(payload);
   }
+
+  public async validaToken(token:string) {
+    return await this.jwtService.verifyAsync(token, {
+      secret: process.env.JWT_PRIVATE_KEY
+    });
+  }
   
 
 }

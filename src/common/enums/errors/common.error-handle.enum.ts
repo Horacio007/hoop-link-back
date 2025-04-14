@@ -2,7 +2,10 @@ export enum ErrorMethods {
     NotFoundException = 'nfe',
     Error = 'e',
     BadRequestException = 'bre',
-    UnauthorizedException = 'ue'
+    UnauthorizedException = 'ue',
+    TokenExpiredError = 'TokenExpiredError',
+    JsonWebTokenError = 'JsonWebTokenError',
+
 }
 
 export enum MessageError {

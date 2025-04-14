@@ -37,7 +37,12 @@ export class ErrorHandleService {
             case ErrorMethods.UnauthorizedException:
                 throw new UnauthorizedException(`${message}`);
                 break;
-        
+            case ErrorMethods.TokenExpiredError:
+                throw new UnauthorizedException(`${message}`);
+                break;
+            case ErrorMethods.JsonWebTokenError:
+                throw new UnauthorizedException(`${message}`);
+                break;
             default:
                 console.log(message);
                 this.logger.error(message);

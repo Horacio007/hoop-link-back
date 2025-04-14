@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, HttpCode, HttpStatus, Res } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, HttpCode, HttpStatus, Res, Query } from '@nestjs/common';
 import { UsuarioService } from './usuario.service';
 import { CreateUsuarioDto } from './dto/create-usuario.dto';
 import { UpdateUsuarioDto } from './dto/update-usuario.dto';
@@ -17,6 +17,12 @@ export class UsuarioController {
   @Post('send')
   async sendEmail(@Body() body: { destinatario: string; usuario: string; enlaceConfirmacion: string }) {
     return this.usuarioService.sendEmail(body.destinatario, body.usuario, body.enlaceConfirmacion);
+  }
+
+  @Get('valida-token')
+  @HttpCode(HttpStatus.OK)
+  async validaToken(@Query('token') token: string): Promise<IResponse<any>> {
+    return await this.usuarioService.validaCorreoToken(token);
   }
 
   @Get()
