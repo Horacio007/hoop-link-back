@@ -3,6 +3,7 @@ import { UsuarioService } from './usuario.service';
 import { CreateUsuarioDto } from './dto/create-usuario.dto';
 import { UpdateUsuarioDto } from './dto/update-usuario.dto';
 import { IResponse } from '../common/interfaces/responses/response';
+import { IRecuperaContrasena } from './interfaces/recupera-contrasena.interface';
 
 @Controller('usuario')
 export class UsuarioController {
@@ -25,23 +26,9 @@ export class UsuarioController {
     return await this.usuarioService.validaCorreoToken(token);
   }
 
-  @Get()
-  findAll() {
-    return this.usuarioService.findAll();
+  @Post('recupera-contrasena')
+  async recuperContrasena(@Body() correo: IRecuperaContrasena): Promise<IResponse<any>> {
+    return this.usuarioService.recuperaContrasena(correo);
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.usuarioService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateUsuarioDto: UpdateUsuarioDto) {
-    return this.usuarioService.update(+id, updateUsuarioDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.usuarioService.remove(+id);
-  }
 }

@@ -16,7 +16,7 @@ import * as path from 'path';
 import * as Handlebars from 'handlebars'; // 
 import * as hbs from 'nodemailer-express-handlebars';
 import { readdir } from 'fs/promises'; // NO 'fs'
-import { IAttachmentGif, IContextEmailCorreoBienvenida, IFileGif, IRequestEmail, IRequestEmailBienvenida } from '../interfaces/mail/index';
+import { IAttachmentGif, IContextEmailCorreoBienvenida, IContextEmailCorreoRecuperacionContrasena, IFileGif, IRequestEmail, IRequestEmailBienvenida, IRequestEmailRecuperaContrasena } from '../interfaces/mail/index';
 import { ErrorHandleService } from '../error/common.error-handle.service';
 import { ErrorMethods } from '../enums/errors/common.error-handle.enum';
 
@@ -46,7 +46,7 @@ export class MailService {
 
     private async getGif(type: string): Promise<IAttachmentGif> {
       try {
-        const {files:archivos, index:randomIndex} = await this.getIndexGif('welcome');
+        const {files:archivos, index:randomIndex} = await this.getIndexGif(type);
         const attachment: IAttachmentGif = {
           filename: archivos[randomIndex],
           path: join(__dirname + "../../../assets") + "/gif/" + type + "/" + archivos[randomIndex],
@@ -62,8 +62,8 @@ export class MailService {
     private async sendEmail(request: IRequestEmail) {
       try {
         console.log(request);
-        const {destinatario, asunto, template, context, attachments} = request;
-        const gifAttachment = await this.getGif('welcome');
+        const {destinatario, asunto, template, context, attachments, tipoGif} = request;
+        const gifAttachment = await this.getGif(tipoGif);
 
         const newAttachments = [
           ...(attachments || []),
@@ -101,7 +101,28 @@ export class MailService {
         destinatario,
         template: 'emails/welcome',
         context,
-        asunto: 'Bienvenido a nuestra plataforma'
+        asunto: 'Bienvenido a nuestra plataforma',
+        tipoGif: 'welcome'
+      }
+
+      return this.sendEmail(requestEmail);
+    }
+
+    async enviarCorreoRecuperaContrasena(request:IRequestEmailRecuperaContrasena) {
+      const { destinatario, usuario, password, url } = request;
+
+      const context:IContextEmailCorreoRecuperacionContrasena = {
+        nombre: usuario,
+        password,
+        url
+      };
+
+      const requestEmail:IRequestEmail = {
+        destinatario,
+        template: 'emails/recupera-contrasena',
+        context,
+        asunto: 'Recuperación de contraseña',
+        tipoGif: 'dont-forget'
       }
 
       return this.sendEmail(requestEmail);

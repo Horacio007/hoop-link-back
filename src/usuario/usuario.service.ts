@@ -12,7 +12,8 @@ import { PasswordService } from '../common/password/password.service';
 import { AuthService } from '../auth/auth.service';
 import { JwtPayload } from '../auth/interfaces/jwt-payload.interface';
 import { MailService } from '../common/mail/common.mail.service';
-import { IRequestEmail, IRequestEmailBienvenida } from '../common/interfaces/mail';
+import { IRequestEmail, IRequestEmailBienvenida, IRequestEmailRecuperaContrasena } from '../common/interfaces/mail';
+import { IRecuperaContrasena } from './interfaces/recupera-contrasena.interface';
 
 @Injectable()
 export class UsuarioService {
@@ -139,23 +140,46 @@ export class UsuarioService {
     }
   }
 
-  findAll() {
-    return `This action returns all usuario`;
+  async recuperaContrasena(correo: IRecuperaContrasena) {
+    try {
+      const usuarioExistente = await this.existeUsuario(correo.correo);
+
+      const response:IResponse<any> = {
+        statusCode: HttpStatus.OK,
+        mensaje: 'Si el correo está registrado, recibirás un enlace para restablecer tu contraseña. Revisa también tu bandeja de spam o correo no deseado.',
+      }
+
+      if (!usuarioExistente) return response;
+      
+      const newPassword = await this.passwordService.generateRandomPassword();
+      const passwordEncrypted = await this.passwordService.hashPassword(newPassword);
+
+      const user:Usuario = await this.usuarioRepository.findOne({
+        where: {correo: correo.correo}
+      });
+
+      user.contrasena = passwordEncrypted;
+      user.usuarioEdicion = user.usuarioId;
+      user.fechaEdicion = new Date();
+      await this.usuarioRepository.save(user);
+
+      const url = `http://localhost:4200/login`;
+      const request:IRequestEmailRecuperaContrasena = {
+        destinatario: user.correo,
+        usuario: user.nombre,
+        password: newPassword,
+        url
+      }
+
+      await this.mailService.enviarCorreoRecuperaContrasena(request);
+
+      return response;
+    } catch (error) {
+      this.errorService.errorHandle(error, ErrorMethods.BadRequestException);
+    }
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} usuario`;
-  }
-
-  update(id: number, updateUsuarioDto: UpdateUsuarioDto) {
-    return `This action updates a #${id} usuario`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} usuario`;
-  }
-
-  async existeUsuario(correo:string, telefono:string): Promise<Usuario> {
+  async existeUsuario(correo:string = '', telefono:string = ''): Promise<Usuario> {
     try {
       const usuario = await this.usuarioRepository.find({
         where: [
