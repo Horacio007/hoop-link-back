@@ -8,10 +8,11 @@ import { JwtStrategy } from './strategies/jwt.strategy';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
+import { AccessTokenGuard } from './guard/auth/access-token.guard';
 
 @Module({
   controllers: [AuthController],
-  providers: [AuthService, JwtStrategy],
+  providers: [AuthService, JwtStrategy, AccessTokenGuard],
   imports: [
     TypeOrmModule.forFeature([Usuario]),
     PassportModule.register({defaultStrategy: 'jwt'}),
@@ -34,6 +35,6 @@ import { PassportModule } from '@nestjs/passport';
     CommonModule,
     ConfigModule
   ],
-  exports:[TypeOrmModule, JwtStrategy, PassportModule, JwtModule]
+  exports:[TypeOrmModule, JwtStrategy, PassportModule, JwtModule, AccessTokenGuard]
 })
 export class AuthModule {}

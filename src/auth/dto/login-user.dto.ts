@@ -1,19 +1,16 @@
 import { IsEmail, IsString, Matches, MaxLength, MinLength } from "class-validator";
+import { ValidationEnumsDTOs } from "../../common/enums/validations/validation-dto.enum";
+import { ValidacionesDTOs } from "../../common/validations/validation.function";
+import { Transform, Type } from "class-transformer";
 
 export class LoginUserDTO {
-    @IsString()
-    @IsEmail()
-    @MinLength(5)
-    @MaxLength(255)
-    usuario:string;
+    @Transform(({ value }) => (typeof value === 'string' ? value.trim() : value))
+    @IsEmail({}, {message: ValidacionesDTOs({campo:'Correo'}, ValidationEnumsDTOs.isEmail)})
+    correo:string;
 
+    @Transform(({ value }) => (typeof value === 'string' ? value.trim() : value))
     @IsString()
-    @MinLength(5)
+    @MinLength(1)
     @MaxLength(1024)
-    // TODO: preguntar si agregamos un patron a la hora de crear la contraseña 
-    // @Matches(
-    //     /(?:(?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$/, {
-    // message: 'The password must have a Uppercase, lowercase letter and a number'
-    // })
-    password: string;
+    contrasena: string;
 }

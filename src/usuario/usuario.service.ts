@@ -43,7 +43,7 @@ export class UsuarioService {
       
       
       const estatus = await this.estatusRepository.findOne({
-        where: {entidadId: 2, nombre: 'pendiente'},
+        where: {entidadId: 1, nombre: 'activo'},
         select: {estatusId:true}
       });
 

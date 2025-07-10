@@ -1,9 +1,11 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, HttpCode, HttpStatus, Res, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, HttpCode, HttpStatus, Res, Query, UseGuards, Req } from '@nestjs/common';
 import { UsuarioService } from './usuario.service';
 import { CreateUsuarioDto } from './dto/create-usuario.dto';
 import { UpdateUsuarioDto } from './dto/update-usuario.dto';
 import { IResponse } from '../common/interfaces/responses/response';
 import { IRecuperaContrasena } from './interfaces/recupera-contrasena.interface';
+import { AuthGuard } from '@nestjs/passport';
+import { Usuario } from '../entities/Usuario';
 
 @Controller('usuario')
 export class UsuarioController {
@@ -15,6 +17,7 @@ export class UsuarioController {
     return await this.usuarioService.create(createUsuarioDto);
   }
 
+  @UseGuards(AuthGuard('jwt'))
   @Post('send')
   async sendEmail(@Body() body: { destinatario: string; usuario: string; enlaceConfirmacion: string }) {
     return this.usuarioService.sendEmail(body.destinatario, body.usuario, body.enlaceConfirmacion);

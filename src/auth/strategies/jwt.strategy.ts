@@ -8,9 +8,10 @@ import { ConfigService } from "@nestjs/config";
 import { ErrorHandleService } from '../../common/error/common.error-handle.service';
 import { ErrorMethods } from '../../common/enums/errors/common.error-handle.enum';
 import { Injectable } from "@nestjs/common";
+import { Request } from 'express';
 
 @Injectable()
-export class JwtStrategy extends PassportStrategy(Strategy) {
+export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
 
     constructor(
         @InjectRepository(Usuario)
@@ -20,19 +21,21 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     ) {
         super({
             secretOrKey: configService.get('JWT_PRIVATE_KEY'),
-            jwtFromRequest: ExtractJwt.fromHeader("x-auth-token"),
+            jwtFromRequest: ExtractJwt.fromExtractors([
+                (req: Request) => req?.cookies?.['accessToken'], // <- el nombre de la cookie donde guardas el token
+            ]),
         })
     }
 
-    // async validate(payload:JwtPayload): Promise<Usuario> {
-    //     // const {nombre, usuario} = payload;
-    //     // const user = await this.userRepository.findOne({
-    //     //     where: {nombre, usuario},
-    //     //     select:{id:true, nombre:true, usuario:true, password: true}
-    //     // });
+    async validate(payload:JwtPayload): Promise<Usuario> {
+        const {nombre, id} = payload;
+        const user = await this.userRepository.findOne({
+            where: {nombre, usuarioId: +id},
+            select:{usuarioId:true, nombre:true}
+        });
 
-    //     // if (!user) this.errorHandleService.errorHandle('Token not valid.', ErrorMethods.UnauthorizedException);
+        if (!user) this.errorHandleService.errorHandle('Token not valid.', ErrorMethods.UnauthorizedException);
 
-    //     // return user;
-    // }
+        return user;
+    }
 }

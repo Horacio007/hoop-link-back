@@ -2,6 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { Logger, ValidationPipe } from '@nestjs/common';
 import * as hbs from 'hbs';
+import * as cookieParser from 'cookie-parser';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -19,6 +20,8 @@ async function bootstrap() {
   hbs.registerPartials(__dirname + '/views/partials');
   // app.setViewEngine('hbs');
   // app.set('view options', { layout: 'index' });
+
+  app.use(cookieParser()); // ✅ Necesario para acceder a req.cookies
 
   app.enableCors({
     origin: (origin, callback) => {
