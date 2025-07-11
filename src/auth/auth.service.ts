@@ -103,7 +103,7 @@ export class AuthService {
         `);
 
         console.log(user);
-      return user;
+      return user[0];
     } catch (error) {
       await queryRunner.release();
       this.errorHandle.errorHandle(error, ErrorMethods.BadRequestException);
