@@ -1,1 +1,1 @@
-export * from './mail/index'
+export { IResponse } from './responses/response';

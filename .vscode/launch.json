@@ -1,0 +1,20 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Debug NestJS",
+      "skipFiles": ["<node_internals>/**"],
+      "program": "${workspaceFolder}/dist/main.js",         // <-- el archivo compilado
+      "preLaunchTask": "tsc: build - tsconfig.json",
+      "outFiles": ["${workspaceFolder}/dist/**/*.js"],
+      "cwd": "${workspaceFolder}",
+      "runtimeArgs": ["--nolazy"],
+      "sourceMaps": true,
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen"
+    }
+  ]
+}

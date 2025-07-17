@@ -4,19 +4,22 @@ import {
   Index,
   JoinColumn,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
 } from "typeorm";
+import { Ficheros } from "./Ficheros";
+import { InformacionPersonal } from "./InformacionPersonal";
 import { Municipio } from "./Municipio";
 import { TipoUsuario } from "./TipoUsuario";
 import { Estatus } from "./Estatus";
 
 @Index("correo", ["correo"], { unique: true })
-@Index("telefono", ["telefono"], { unique: true })
+@Index("FK_estatus_usuario", ["estatusId"], {})
+@Index("FK_municipio_usuario", ["municipioId"], {})
+@Index("FK_tipo_usuario_usuario", ["tipoUsuarioId"], {})
 @Index("IDX_349ecb64acc4355db443ca17cb", ["correo"], { unique: true })
 @Index("IDX_dd13ecd2eec69592d312b79392", ["telefono"], { unique: true })
-@Index("FK_estatus_usuario", ["estatusId"], {})
-@Index("FK_tipo_usuario_usuario", ["tipoUsuarioId"], {})
-@Index("FK_municipio_usuario", ["municipioId"], {})
+@Index("telefono", ["telefono"], { unique: true })
 @Entity("usuario", { schema: "hoop-link" })
 export class Usuario {
   @PrimaryGeneratedColumn({ type: "int", name: "usuario_id" })
@@ -72,6 +75,15 @@ export class Usuario {
 
   @Column("int", { name: "usuario_edicion", nullable: true })
   usuarioEdicion: number | null;
+
+  @OneToMany(() => Ficheros, (ficheros) => ficheros.usuario)
+  ficheros: Ficheros[];
+
+  @OneToMany(
+    () => InformacionPersonal,
+    (informacionPersonal) => informacionPersonal.usuario
+  )
+  informacionPersonals: InformacionPersonal[];
 
   @ManyToOne(() => Municipio, (municipio) => municipio.usuarios, {
     onDelete: "NO ACTION",

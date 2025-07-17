@@ -8,6 +8,7 @@ import {
   PrimaryGeneratedColumn,
 } from "typeorm";
 import { Entidad } from "./Entidad";
+import { Ficheros } from "./Ficheros";
 import { TipoUsuario } from "./TipoUsuario";
 import { Usuario } from "./Usuario";
 
@@ -44,6 +45,9 @@ export class Estatus {
   })
   @JoinColumn([{ name: "entidad_id", referencedColumnName: "entidadId" }])
   entidad: Entidad;
+
+  @OneToMany(() => Ficheros, (ficheros) => ficheros.estatus)
+  ficheros: Ficheros[];
 
   @OneToMany(() => TipoUsuario, (tipoUsuario) => tipoUsuario.estatus)
   tipoUsuarios: TipoUsuario[];
