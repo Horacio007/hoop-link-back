@@ -8,6 +8,7 @@ import { CommonModule } from '../../common/common.module';
   providers: [CatalogoService],
   imports: [
     CommonModule
-  ]
+  ],
+  exports: [CatalogoService]
 })
 export class CatalogoModule {}

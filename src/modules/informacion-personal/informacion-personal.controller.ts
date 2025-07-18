@@ -7,7 +7,7 @@ import { ErrorHandleService } from '../../common/error/services/common.error-han
 import { error } from 'console';
 import { ErrorMethods } from '../../common/error/enum/common.error-handle.enum';
 import { plainToInstance } from 'class-transformer';
-import { validate } from 'class-validator';
+import { validate, validateOrReject } from 'class-validator';
 import { User } from '../../common/decorators/user.decorator';
 import { AccessTokenGuard } from '../auth/guard/auth/access-token.guard';
 import { JwtPayload } from '../auth/interfaces/jwt-payload.interface';
@@ -31,25 +31,23 @@ export class InformacionPersonalController {
     @Body('datos') datosJson: string,
     @User() user: JwtPayload
   ): Promise<IResponse<any>> {
-    console.log(user);
-    // Convertir string JSON a objeto
-    let dto: UpsertInformacionPersonalDto;
     try {
+       console.log(user);
+      // Convertir string JSON a objeto
+      let dto: UpsertInformacionPersonalDto;
       dto = JSON.parse(datosJson);
+  
+      // Convertir plano a instancia con decoradores
+      const dtoInstance = plainToInstance(UpsertInformacionPersonalDto, dto);
+  
+      // Validar manualmente
+      await validateOrReject(dtoInstance);
+          
+      return this._informacionPersonalService.save(+user.id, dto, fotoPerfil);
     } catch (error) {
       this._errorService.errorHandle(error, ErrorMethods.BadRequestException);
     }
-
-    // Convertir plano a instancia con decoradores
-    const dtoInstance = plainToInstance(UpsertInformacionPersonalDto, dto);
-
-    // Validar manualmente
-    const errors = await validate(dtoInstance);
-    if (errors.length > 0) {
-      this._errorService.errorHandle(errors.toString(), ErrorMethods.BadRequestException);
-    }
-    
-    return this._informacionPersonalService.save(+user.id, dto, fotoPerfil);
+   
   }
 
   @Get('')

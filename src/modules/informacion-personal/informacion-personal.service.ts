@@ -11,6 +11,8 @@ import { Ficheros } from '../../entities/Ficheros';
 import { FicherosService } from '../ficheros/ficheros.service';
 import { info } from 'console';
 import { IResponse } from '../../common/interfaces';
+import { IInformacinPersonal } from '../../common/interfaces/informacion-personal/informacion-personal.interface';
+import { CatalogoService } from '../catalogo/catalogo.service';
 
 @Injectable()
 export class InformacionPersonalService {
@@ -21,7 +23,8 @@ export class InformacionPersonalService {
     private readonly _ficherosService: FicherosService,
     private readonly _errorService: ErrorHandleService,
     private readonly _cloudinaryService: CloudinaryService,
-    private readonly _dataSource: DataSource
+    private readonly _dataSource: DataSource,
+    private readonly _catalogoService: CatalogoService,
   ) { }
 //#endregion
 
@@ -31,6 +34,7 @@ export class InformacionPersonalService {
 
     await queryRunner.connect();
     await queryRunner.startTransaction();
+    const infoRepo = queryRunner.manager.getRepository(InformacionPersonal);
 
     try {
       let fotoPerfilResponse: UploadApiResponse;
@@ -38,17 +42,39 @@ export class InformacionPersonalService {
 
       // primero guardo foto perfil
       if (fotoPerfil) {
+        console.log('entro sin una foto nueva');
         fotoPerfilResponse = await this._cloudinaryService.uploadFile(fotoPerfil);
         ficheroFotoPerfil = await this._ficherosService.uploadFotoPerfil(usuarioId, fotoPerfilResponse, dto.perfil.fotoPerfilId, queryRunner.manager);
       }
       
       const existing = await this._informacionPersonalRepository.findOneBy({ usuarioId });
       if (existing) {
-        // actualizo
+        const { perfil } = dto;
+        console.log('ENTRE', existing);
+        // primero hago patch del perfil
+        for (const key in perfil) {
+          if (perfil[key] !== undefined) {
+            existing[key] = perfil[key];
+          }
+        }
+
+        if (ficheroFotoPerfil !== undefined) {
+          existing.fotoPerfilId = ficheroFotoPerfil.ficheroId;
+        }
+        if (perfil.estatusBusquedaJugador?.id !== undefined) {
+          existing.estatusBusquedaJugador = undefined; 
+          existing.estatusBusquedaJugadorId = +perfil.estatusBusquedaJugador.id;
+        }
+        existing.usuarioId = usuarioId;
+        existing.fechaEdicion = new Date();
+        existing.usuarioEdicion = usuarioId;
+
+        console.log('antres de cambios', existing);
+        console.log(perfil.estatusBusquedaJugador);
+        await infoRepo.save(existing);
+
       } else {
         // nuevo
-        const infoRepo = queryRunner.manager.getRepository(InformacionPersonal);
-
         const { perfil } = dto;
         const newInfoPersonal = {
           usuarioId,
@@ -83,7 +109,49 @@ export class InformacionPersonalService {
   }
 
   async getInformacionPersonal(usuarioId: number) {
-    
+    try {
+      const infoPersonal = await this._informacionPersonalRepository.findOne({
+        where: {usuarioId},
+        select: {
+          informacionPersonalId: true,
+          fotoPerfilId: true,
+          altura: true,
+          peso: true,
+          estatusBusquedaJugadorId: true,
+          medidaMano: true,
+          largoBrazo: true,
+          quienEres: true
+        }
+      });
+
+      // si no existe es primera ves y lo saca
+      if (!infoPersonal) this._errorService.setError('algomal');
+      
+      const estatusBusquedaJugador = await this._catalogoService.getInfoCatalogo(
+        'estatus_busqueda_jugador_id',
+        'estatus_busqueda_jugador',
+        infoPersonal.estatusBusquedaJugadorId
+      );
+        
+      const fotoPerfilId = await this._ficherosService.getPublicIdByFicheroId(infoPersonal.fotoPerfilId);
+      const fotoPerfilPublicId = await this._cloudinaryService.getImage(fotoPerfilId);
+
+      const sendInfoPersonal: IInformacinPersonal = {
+        ...infoPersonal,
+        fotoPerfilPublicUrl: fotoPerfilPublicId,
+        estatusBusquedaJugador
+      }
+
+      const response:IResponse<IInformacinPersonal> = {
+        statusCode: HttpStatus.OK,
+        mensaje: 'Información obtenida.',
+        data: sendInfoPersonal
+      }
+
+      return response;
+    } catch (error) {
+      this._errorService.errorHandle(error, ErrorMethods.BadRequestException);
+    }
   }
 //#endregion
 

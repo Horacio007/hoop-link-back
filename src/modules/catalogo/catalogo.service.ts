@@ -104,4 +104,28 @@ export class CatalogoService {
     }
   }
 
+  async getInfoCatalogo(nombreColumna: string, nombreTabla: string, id: number): Promise<ICatalogo> {
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+
+    try {
+
+      const query = `
+        SELECT ${nombreColumna} as id, nombre
+        FROM ${nombreTabla}
+        WHERE ${nombreColumna} = ?
+      `;
+
+      const catalogo: ICatalogo = await queryRunner.query(query, [id]);
+
+      return catalogo[0];
+    } catch (error) {
+      await queryRunner.release();
+      this.errorHandleService.errorHandle(error, ErrorMethods.BadRequestException);
+    }
+    finally {
+      await queryRunner.release();
+    }
+  }
+
 }

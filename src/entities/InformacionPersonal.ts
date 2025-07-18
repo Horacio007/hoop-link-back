@@ -8,12 +8,14 @@ import {
 } from "typeorm";
 import { EstatusBusquedaJugador } from "./EstatusBusquedaJugador";
 import { Usuario } from "./Usuario";
+import { Ficheros } from "./Ficheros";
 
 @Index(
   "FK_informacion_personal_estatus_busqueda_jugador",
   ["estatusBusquedaJugadorId"],
   {}
 )
+@Index("FK_informacion_personal_foto_perfil_ficheros", ["fotoPerfilId"], {})
 @Index("FK_informacion_personal_usuario", ["usuarioId"], {})
 @Entity("informacion_personal", { schema: "hoop-link" })
 export class InformacionPersonal {
@@ -82,4 +84,11 @@ export class InformacionPersonal {
   })
   @JoinColumn([{ name: "usuario_id", referencedColumnName: "usuarioId" }])
   usuario: Usuario;
+
+  @ManyToOne(() => Ficheros, (ficheros) => ficheros.informacionPersonals, {
+    onDelete: "NO ACTION",
+    onUpdate: "NO ACTION",
+  })
+  @JoinColumn([{ name: "foto_perfil_id", referencedColumnName: "ficheroId" }])
+  fotoPerfil: Ficheros;
 }

@@ -4,10 +4,12 @@ import {
   Index,
   JoinColumn,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
 } from "typeorm";
 import { Estatus } from "./Estatus";
 import { Usuario } from "./Usuario";
+import { InformacionPersonal } from "./InformacionPersonal";
 
 @Index("FK_ficheros_estatus", ["estatusId"], {})
 @Index("FK_ficheros_usuario", ["usuarioId"], {})
@@ -59,4 +61,10 @@ export class Ficheros {
   })
   @JoinColumn([{ name: "usuario_id", referencedColumnName: "usuarioId" }])
   usuario: Usuario;
+
+  @OneToMany(
+    () => InformacionPersonal,
+    (informacionPersonal) => informacionPersonal.fotoPerfil
+  )
+  informacionPersonals: InformacionPersonal[];
 }

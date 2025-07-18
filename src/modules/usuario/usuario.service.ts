@@ -41,7 +41,7 @@ export class UsuarioService {
       }
       
       
-      const estatus = await this._estatusService.getEstatusActivoId();
+      const estatusId = await this._estatusService.getEstatusActivoId();
 
       const password = await this._passwordService.hashPassword(createUsuarioDto.contrasena);
 
@@ -55,7 +55,7 @@ export class UsuarioService {
         telefono: createUsuarioDto.telefono,
         tipoUsuarioId: +createUsuarioDto.tipoUsuario.id,
         municipioId: +createUsuarioDto.municipio.id,
-        estatusId: estatus.estatusId,
+        estatusId,
         contrasena: password
       }
 

@@ -11,23 +11,27 @@ export class CloudinaryService {
 //#endregion
 
 //#region Servicios
-    async uploadFile(file: Express.Multer.File): Promise<UploadApiResponse> {
-        return new Promise((resolve, reject) => {
-          const uploadStream = this.cloudinary.uploader.upload_stream(
-            { folder: RoutesPathsClodudinary.IMAGEN_PERFIL },
-            (error, result) => {
-              if (error) return reject(error);
-              return resolve(result);
-            }
-          );
-    
-          Readable.from(file.buffer).pipe(uploadStream);
-        });
-      }
+  async uploadFile(file: Express.Multer.File): Promise<UploadApiResponse> {
+    return new Promise((resolve, reject) => {
+      const uploadStream = this.cloudinary.uploader.upload_stream(
+        { folder: RoutesPathsClodudinary.IMAGEN_PERFIL },
+        (error, result) => {
+          if (error) return reject(error);
+          return resolve(result);
+        }
+      );
 
-    async listFolder(folderPath: string): Promise<any> {
-        console.log('entre');
-        return await this.cloudinary.api.resources_by_asset_folder('hoop-link/imagen-perfil').then();
-    }
+      Readable.from(file.buffer).pipe(uploadStream);
+    });
+  }
+
+  async listFolder(folderPath: string): Promise<any> {
+    console.log('entre');
+    return await this.cloudinary.api.resources_by_asset_folder('hoop-link/imagen-perfil').then();
+  }
+
+  async getImage(publicId: string): Promise<string> {
+    return await this.cloudinary.url(publicId);
+  }
 //#endregion
 }

@@ -15,11 +15,13 @@ export class EstatusService {
 //#endregion
 
 //#region Servicios
-  async getEstatusActivoId(): Promise<{estatusId: number}> {
-    return await this._estatusRepository.findOne({
+  async getEstatusActivoId(): Promise<number> {
+    const estatus = await this._estatusRepository.findOne({
       where: {entidadId: 1, nombre: 'activo'},
       select: {estatusId:true}
     });
+    
+    return estatus.estatusId
   }
 //#endregion
 }

@@ -29,12 +29,16 @@ export class FicherosService {
       
       if (existing) {
         // se hace un update
+        existing.nombre = uploaded.original_filename;
+        existing.archivoId = uploaded.public_id;
+        existing.fechaEdicion = new Date();
+        existing.usuarioEdicion = usuarioId;
+        return await repo.save(existing);
       } else {
         // insert
-        const estatus = await this._estatusService.getEstatusActivoId();
-        console.log('Aqui va el estatus',estatus);
+        const estatusId = await this._estatusService.getEstatusActivoId();
         const newFichero = {
-          estatusId: estatus.estatusId,
+          estatusId,
           usuarioId,
           nombre: uploaded.original_filename,
           folderId: RoutesPathsClodudinary.IMAGEN_PERFIL,
@@ -48,5 +52,16 @@ export class FicherosService {
     } catch (error) {
       this._errorService.errorHandle(error, ErrorMethods.BadRequestException);
     }
+  }
+
+  async getPublicIdByFicheroId(ficheroId: number): Promise<string> {
+    const fichero = await this._ficheroRepository.findOne({
+      where: {ficheroId},
+      select: {
+        archivoId: true
+      }
+    });
+
+    return fichero.archivoId;
   }
 }
