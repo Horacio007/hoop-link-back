@@ -4,8 +4,11 @@ import {
   Index,
   JoinColumn,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
 } from "typeorm";
+import { Ficheros } from "./Ficheros";
+import { InformacionPersonal } from "./InformacionPersonal";
 import { Municipio } from "./Municipio";
 import { TipoUsuario } from "./TipoUsuario";
 import { Estatus } from "./Estatus";
@@ -72,6 +75,15 @@ export class Usuario {
 
   @Column("int", { name: "usuario_edicion", nullable: true })
   usuarioEdicion: number | null;
+
+  @OneToMany(() => Ficheros, (ficheros) => ficheros.usuario)
+  ficheros: Ficheros[];
+
+  @OneToMany(
+    () => InformacionPersonal,
+    (informacionPersonal) => informacionPersonal.usuario
+  )
+  informacionPersonals: InformacionPersonal[];
 
   @ManyToOne(() => Municipio, (municipio) => municipio.usuarios, {
     onDelete: "NO ACTION",

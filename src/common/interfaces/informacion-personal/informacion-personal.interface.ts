@@ -1,0 +1,25 @@
+import { ICatalogo } from "../../../modules/catalogo/interfaces/catalogo.interface";
+
+export interface IInformacinPersonal {
+    informacionPersonalId: number,
+    fotoPerfilId: number,
+    altura: number,
+    peso: number,
+    estatusBusquedaJugador: ICatalogo,
+    medidaMano: number,
+    largoBrazo: number,
+    quienEres: string,
+    fotoPerfilPublicUrl: string,
+    alturaSaltoVertical?: number,
+    distanciaSaltoHorizontal?: number,
+    pesoBenchPress?: number,
+    pesoSquats?: number,
+    pesoPressMilitar?: number,
+    pesoRepeticionBenchPress?: number,
+    pesoRepeticionSquats?: number,
+    pesoRepeticionPressMilitar?: number,
+    tiempoDistanciaCienMts?: number,
+    tiempoDistanciaUnKm?: number,
+    tiempoDistanciaTresKm?: number,
+    tiempoDistanciaCincoKm?: number,
+}

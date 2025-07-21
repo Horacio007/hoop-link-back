@@ -1,12 +1,14 @@
 import { Module } from '@nestjs/common';
-import { ErrorHandleService } from './error/common.error-handle.service';
+import { ErrorHandleService } from './error/services/common.error-handle.service';
 import { PasswordService } from './password/password.service';
 import { ConfigModule } from '@nestjs/config';
-import { MailService } from './mail/common.mail.service';
+import { MailService } from './mail/services/common.mail.service';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { extname, join, resolve } from 'path';
 import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
 import path = require('path');
+import { CloudinaryProvider } from './cloudinary/providers/cloudinary.provider';
+import { CloudinaryService } from './cloudinary/services/cloudinary.service';
 
 @Module({
   imports:[
@@ -52,12 +54,16 @@ import path = require('path');
   providers: [
     ErrorHandleService,
     PasswordService,
-    MailService
+    MailService,
+    CloudinaryProvider,
+    CloudinaryService
   ],
   exports: [
     ErrorHandleService, 
     PasswordService,
-    MailService
+    MailService,
+    CloudinaryProvider,
+    CloudinaryService
   ],
 })
 export class CommonModule {}
