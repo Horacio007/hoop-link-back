@@ -66,16 +66,28 @@ export class InformacionPersonalService {
           existing.estatusBusquedaJugadorId = +perfil.estatusBusquedaJugador.id;
         }
         existing.usuarioId = usuarioId;
+        
+        // actualiza la fuertza y resistencia
+        const { fuerzaResistencia } = dto;
+
+        for (const key in fuerzaResistencia) {
+          if (fuerzaResistencia[key] !== undefined) {
+            existing[key] = fuerzaResistencia[key];
+          }
+        }
+        
+        
         existing.fechaEdicion = new Date();
         existing.usuarioEdicion = usuarioId;
 
         console.log('antres de cambios', existing);
         console.log(perfil.estatusBusquedaJugador);
+        
+        
         await infoRepo.save(existing);
-
       } else {
         // nuevo
-        const { perfil } = dto;
+        const { perfil, fuerzaResistencia } = dto;
         const newInfoPersonal = {
           usuarioId,
           fotoPerfilId: ficheroFotoPerfil.ficheroId ? ficheroFotoPerfil.ficheroId : null,
@@ -85,6 +97,18 @@ export class InformacionPersonalService {
           medidaMano: perfil.medidaMano,
           largoBrazo: perfil.largoBrazo,
           quienEres: perfil.quienEres,
+          alturaSaltoVertical: fuerzaResistencia.alturaSaltoVertical ,
+          distanciaSaltoHorizontal: fuerzaResistencia.distanciaSaltoHorizontal ,
+          pesoBenchPress: fuerzaResistencia.pesoBenchPress ,
+          pesoSquats: fuerzaResistencia.pesoSquats ,
+          pesoPressMilitar: fuerzaResistencia.pesoPressMilitar ,
+          pesoRepeticionBenchPress: fuerzaResistencia.pesoRepeticionBenchPress ,
+          pesoRepeticionSquats: fuerzaResistencia.pesoRepeticionSquats ,
+          pesoRepeticionPressMilitar: fuerzaResistencia.pesoRepeticionPressMilitar ,
+          tiempoDistanciaCienMts: fuerzaResistencia.tiempoDistanciaCienMts ,
+          tiempoDistanciaUnKm: fuerzaResistencia.tiempoDistanciaUnKm ,
+          tiempoDistanciaTresKm: fuerzaResistencia.tiempoDistanciaTresKm ,
+          tiempoDistanciaCincoKm: fuerzaResistencia.tiempoDistanciaCincoKm ,
           usuarioCreacion: usuarioId
         }
       
@@ -120,7 +144,19 @@ export class InformacionPersonalService {
           estatusBusquedaJugadorId: true,
           medidaMano: true,
           largoBrazo: true,
-          quienEres: true
+          quienEres: true,
+          alturaSaltoVertical: true ,
+          distanciaSaltoHorizontal: true ,
+          pesoBenchPress: true ,
+          pesoSquats: true ,
+          pesoPressMilitar: true ,
+          pesoRepeticionBenchPress: true ,
+          pesoRepeticionSquats: true ,
+          pesoRepeticionPressMilitar: true ,
+          tiempoDistanciaCienMts: true ,
+          tiempoDistanciaUnKm: true ,
+          tiempoDistanciaTresKm: true ,
+          tiempoDistanciaCincoKm: true ,
         }
       });
 

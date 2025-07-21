@@ -9,5 +9,17 @@ export interface IInformacinPersonal {
     medidaMano: number,
     largoBrazo: number,
     quienEres: string,
-    fotoPerfilPublicUrl: string
+    fotoPerfilPublicUrl: string,
+    alturaSaltoVertical?: number,
+    distanciaSaltoHorizontal?: number,
+    pesoBenchPress?: number,
+    pesoSquats?: number,
+    pesoPressMilitar?: number,
+    pesoRepeticionBenchPress?: number,
+    pesoRepeticionSquats?: number,
+    pesoRepeticionPressMilitar?: number,
+    tiempoDistanciaCienMts?: number,
+    tiempoDistanciaUnKm?: number,
+    tiempoDistanciaTresKm?: number,
+    tiempoDistanciaCincoKm?: number,
 }
