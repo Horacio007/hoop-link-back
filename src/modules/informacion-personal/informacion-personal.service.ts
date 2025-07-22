@@ -75,7 +75,24 @@ export class InformacionPersonalService {
             existing[key] = fuerzaResistencia[key];
           }
         }
+
+        const { basketball } = dto; 
         
+         for (const key in basketball) {
+          if (basketball[key] !== undefined) {
+            existing[key] = basketball[key];
+          }
+        }
+
+        if (basketball.posicionJuegoUno?.id !== undefined) {
+          existing.posicionJuegoUno = undefined; 
+          existing.posicionJuegoUnoId = +basketball.posicionJuegoUno.id;
+        }
+
+        if (basketball.posicionJuegoDos?.id !== undefined) {
+          existing.posicionJuegoDos = undefined; 
+          existing.posicionJuegoDosId = +basketball.posicionJuegoDos.id;
+        }
         
         existing.fechaEdicion = new Date();
         existing.usuarioEdicion = usuarioId;
@@ -87,7 +104,7 @@ export class InformacionPersonalService {
         await infoRepo.save(existing);
       } else {
         // nuevo
-        const { perfil, fuerzaResistencia } = dto;
+        const { perfil, fuerzaResistencia, basketball } = dto;
         const newInfoPersonal = {
           usuarioId,
           fotoPerfilId: ficheroFotoPerfil.ficheroId ? ficheroFotoPerfil.ficheroId : null,
@@ -108,7 +125,17 @@ export class InformacionPersonalService {
           tiempoDistanciaCienMts: fuerzaResistencia.tiempoDistanciaCienMts ,
           tiempoDistanciaUnKm: fuerzaResistencia.tiempoDistanciaUnKm ,
           tiempoDistanciaTresKm: fuerzaResistencia.tiempoDistanciaTresKm ,
-          tiempoDistanciaCincoKm: fuerzaResistencia.tiempoDistanciaCincoKm ,
+          anioEmpezoAJugar: basketball.anioEmpezoAJugar ,
+          manoJuego: basketball.manoJuego ,
+          posicionJuegoUnoId: +basketball.posicionJuegoUno.id ,
+          posicionJuegoDosId: +basketball.posicionJuegoDos.id ,
+          clavas: basketball.clavas ,
+          puntosPorJuego: basketball.puntosPorJuego ,
+          asistenciasPorJuego: basketball.asistenciasPorJuego ,
+          rebotesPorJuego: basketball.rebotesPorJuego ,
+          porcentajeTirosMedia: basketball.porcentajeTirosMedia ,
+          porcentajeTirosTres: basketball.porcentajeTirosTres ,
+          porcentajeTirosLibres: basketball.porcentajeTirosLibres ,
           usuarioCreacion: usuarioId
         }
       
@@ -157,6 +184,17 @@ export class InformacionPersonalService {
           tiempoDistanciaUnKm: true ,
           tiempoDistanciaTresKm: true ,
           tiempoDistanciaCincoKm: true ,
+          anioEmpezoAJugar: true ,
+          manoJuego: true ,
+          posicionJuegoUnoId: true ,
+          posicionJuegoDosId: true ,
+          clavas: true ,
+          puntosPorJuego: true ,
+          asistenciasPorJuego: true ,
+          rebotesPorJuego: true ,
+          porcentajeTirosMedia: true ,
+          porcentajeTirosTres: true ,
+          porcentajeTirosLibres: true ,
         }
       });
 
@@ -168,6 +206,18 @@ export class InformacionPersonalService {
         'estatus_busqueda_jugador',
         infoPersonal.estatusBusquedaJugadorId
       );
+
+      const posicionJuegoUno = await this._catalogoService.getInfoCatalogo(
+        'posicion_juego_id',
+        'posicion_juego',
+        infoPersonal.posicionJuegoUnoId
+      );
+
+      const posicionJuegoDos = await this._catalogoService.getInfoCatalogo(
+        'posicion_juego_id',
+        'posicion_juego',
+        infoPersonal.posicionJuegoDosId
+      );
         
       const fotoPerfilId = await this._ficherosService.getPublicIdByFicheroId(infoPersonal.fotoPerfilId);
       const fotoPerfilPublicId = await this._cloudinaryService.getImage(fotoPerfilId);
@@ -175,13 +225,27 @@ export class InformacionPersonalService {
       const sendInfoPersonal: IInformacinPersonal = {
         ...infoPersonal,
         fotoPerfilPublicUrl: fotoPerfilPublicId,
-        estatusBusquedaJugador
+        estatusBusquedaJugador,
+        posicionJuegoUno,
+        posicionJuegoDos,
       }
+
+      // Si manoJuego viene como Buffer o Uint8Array
+      const manoJuegoBuffer = sendInfoPersonal.manoJuego;
+      const clavasBuffer = sendInfoPersonal.clavas;
+      
+      // Convertimos a boolean
+      const manoJuegoBool = manoJuegoBuffer[0] !== 0;
+      const clavasBool = clavasBuffer[0] !== 0;
 
       const response:IResponse<IInformacinPersonal> = {
         statusCode: HttpStatus.OK,
         mensaje: 'Información obtenida.',
-        data: sendInfoPersonal
+        data: {
+          ...sendInfoPersonal,
+          manoJuego: manoJuegoBool,
+          clavas: clavasBool
+        }
       }
 
       return response;

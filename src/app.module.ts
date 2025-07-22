@@ -18,6 +18,7 @@ import { InformacionPersonal } from './entities/InformacionPersonal';
 import { InformacionPersonalModule } from './modules/informacion-personal/informacion-personal.module';
 import { EstatusModule } from './modules/estatus/estatus.module';
 import { FicherosModule } from './modules/ficheros/ficheros.module';
+import { PosicionJuego } from './entities/PosicionJuego';
 
 
 @Module({
@@ -43,7 +44,8 @@ import { FicherosModule } from './modules/ficheros/ficheros.module';
         Municipio,
         EstatusBusquedaJugador,
         Ficheros,
-        InformacionPersonal
+        InformacionPersonal,
+        PosicionJuego
       ]
     }),
     AuthModule,
@@ -51,7 +53,7 @@ import { FicherosModule } from './modules/ficheros/ficheros.module';
     CatalogoModule,
     InformacionPersonalModule,
     EstatusModule,
-    FicherosModule,
+    FicherosModule
   ],
   controllers: [],
   providers: [],

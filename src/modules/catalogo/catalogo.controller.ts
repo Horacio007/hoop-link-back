@@ -27,4 +27,9 @@ export class CatalogoController {
     return await this.catalogoService.getAllEstatusBusquedaJugador();
   }
 
+  @Get('getAllPosicionJugador')
+  async getAllPosicionJugador() {
+    return await this.catalogoService.getAllPosicionJugador();
+  }
+
 }

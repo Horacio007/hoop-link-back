@@ -8,15 +8,18 @@ import {
 } from "typeorm";
 import { EstatusBusquedaJugador } from "./EstatusBusquedaJugador";
 import { Ficheros } from "./Ficheros";
+import { PosicionJuego } from "./PosicionJuego";
 import { Usuario } from "./Usuario";
 
-@Index("FK_informacion_personal_usuario", ["usuarioId"], {})
 @Index(
   "FK_informacion_personal_estatus_busqueda_jugador",
   ["estatusBusquedaJugadorId"],
   {}
 )
 @Index("FK_informacion_personal_foto_perfil_ficheros", ["fotoPerfilId"], {})
+@Index("FK_informacion_personal_usuario", ["usuarioId"], {})
+@Index("FK_posicion_juego_dos_id", ["posicionJuegoDosId"], {})
+@Index("FK_posicion_juego_uno_id", ["posicionJuegoUnoId"], {})
 @Entity("informacion_personal", { schema: "hoop-link" })
 export class InformacionPersonal {
   @PrimaryGeneratedColumn({ type: "int", name: "informacion_personal_id" })
@@ -46,19 +49,11 @@ export class InformacionPersonal {
   @Column("varchar", { name: "quien_eres", length: 500 })
   quienEres: string;
 
-  @Column("float", {
-    name: "altura_salto_vertical",
-    nullable: true,
-    precision: 12,
-  })
-  alturaSaltoVertical: number | null;
+  @Column("float", { name: "altura_salto_vertical", precision: 12 })
+  alturaSaltoVertical: number;
 
-  @Column("float", {
-    name: "distancia_salto_horizontal",
-    nullable: true,
-    precision: 12,
-  })
-  distanciaSaltoHorizontal: number | null;
+  @Column("float", { name: "distancia_salto_horizontal", precision: 12 })
+  distanciaSaltoHorizontal: number;
 
   @Column("float", { name: "peso_bench_press", nullable: true, precision: 12 })
   pesoBenchPress: number | null;
@@ -122,6 +117,51 @@ export class InformacionPersonal {
   })
   tiempoDistanciaCincoKm: number | null;
 
+  @Column("datetime", { name: "anio_empezo_a_jugar", nullable: true })
+  anioEmpezoAJugar: Date | null;
+
+  @Column("bit", { name: "mano_juego", default: () => "'0'" })
+  manoJuego: boolean;
+
+  @Column("int", { name: "posicion_juego_uno_id" })
+  posicionJuegoUnoId: number;
+
+  @Column("int", { name: "posicion_juego_dos_id" })
+  posicionJuegoDosId: number;
+
+  @Column("bit", { name: "clavas", default: () => "'0'" })
+  clavas: boolean;
+
+  @Column("int", { name: "puntos_por_juego", nullable: true })
+  puntosPorJuego: number | null;
+
+  @Column("int", { name: "asistencias_por_juego", nullable: true })
+  asistenciasPorJuego: number | null;
+
+  @Column("int", { name: "rebotes_por_juego", nullable: true })
+  rebotesPorJuego: number | null;
+
+  @Column("float", {
+    name: "porcentaje_tiros_media",
+    nullable: true,
+    precision: 12,
+  })
+  porcentajeTirosMedia: number | null;
+
+  @Column("float", {
+    name: "porcentaje_tiros_tres",
+    nullable: true,
+    precision: 12,
+  })
+  porcentajeTirosTres: number | null;
+
+  @Column("float", {
+    name: "porcentaje_tiros_libres",
+    nullable: true,
+    precision: 12,
+  })
+  porcentajeTirosLibres: number | null;
+
   @Column("datetime", {
     name: "fechaCreacion",
     default: () => "CURRENT_TIMESTAMP",
@@ -160,6 +200,26 @@ export class InformacionPersonal {
   })
   @JoinColumn([{ name: "foto_perfil_id", referencedColumnName: "ficheroId" }])
   fotoPerfil: Ficheros;
+
+  @ManyToOne(
+    () => PosicionJuego,
+    (posicionJuego) => posicionJuego.informacionPersonals,
+    { onDelete: "NO ACTION", onUpdate: "NO ACTION" }
+  )
+  @JoinColumn([
+    { name: "posicion_juego_uno_id", referencedColumnName: "posicionJuegoId" },
+  ])
+  posicionJuegoUno: PosicionJuego;
+
+  @ManyToOne(
+    () => PosicionJuego,
+    (posicionJuego) => posicionJuego.informacionPersonals2,
+    { onDelete: "NO ACTION", onUpdate: "NO ACTION" }
+  )
+  @JoinColumn([
+    { name: "posicion_juego_dos_id", referencedColumnName: "posicionJuegoId" },
+  ])
+  posicionJuegoDos: PosicionJuego;
 
   @ManyToOne(() => Usuario, (usuario) => usuario.informacionPersonals, {
     onDelete: "NO ACTION",
