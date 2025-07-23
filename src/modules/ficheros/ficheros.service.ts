@@ -37,14 +37,14 @@ export class FicherosService {
       } else {
         // insert
         const estatusId = await this._estatusService.getEstatusActivoId();
-        const newFichero = {
+        const newFichero = repo.create({
           estatusId,
           usuarioId,
           nombre: uploaded.original_filename,
           folderId: RoutesPathsClodudinary.IMAGEN_PERFIL,
           archivoId: uploaded.public_id,
           usuarioCreacion: usuarioId
-        }
+        });
 
         await repo.create(newFichero);
         return await repo.save(newFichero);

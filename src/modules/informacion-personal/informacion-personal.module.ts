@@ -7,6 +7,9 @@ import { CommonModule } from '../../common/common.module';
 import { AuthModule } from '../auth/auth.module';
 import { FicherosModule } from '../ficheros/ficheros.module';
 import { CatalogoModule } from '../catalogo/catalogo.module';
+import { HistorialEntrenadoresInformacionPersonalModule } from '../historial-entrenadores-informacion-personal/historial-entrenadores-informacion-personal.module';
+import { HistorialEventosInformacionPersonalModule } from '../historial-eventos-informacion-personal/historial-equipos-informacion-personal.module';
+import { LogrosClaveInformacionPersonalModule } from '../logros-clave-informacion-personal/logros-clave-informacion-personal.module';
 
 @Module({
   controllers: [InformacionPersonalController],
@@ -19,6 +22,9 @@ import { CatalogoModule } from '../catalogo/catalogo.module';
     AuthModule,
     FicherosModule,
     CatalogoModule,
+    HistorialEntrenadoresInformacionPersonalModule,
+    HistorialEventosInformacionPersonalModule,
+    LogrosClaveInformacionPersonalModule,
   ],
   exports: [InformacionPersonalService]
 })

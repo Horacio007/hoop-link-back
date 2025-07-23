@@ -1,6 +1,9 @@
 import { ICatalogo } from "../../../modules/catalogo/interfaces/catalogo.interface";
+import { IHistorialEntrenadoresInformacionPersonal } from "./historial-entrenadores/historial-entrenadores.ip.interface";
+import { IHistorialEquiposInformacionPersonal } from "./historial-equipos/historial-equipos.ip.interface";
+import { ILogrosClaveInformacionPersonal } from "./logros-clave/logros-clave.ip.interface";
 
-export interface IInformacinPersonal {
+export interface IInformacionPersonal {
     informacionPersonalId: number,
     fotoPerfilId: number,
     altura: number,
@@ -33,4 +36,12 @@ export interface IInformacinPersonal {
     porcentajeTirosMedia?: number ,
     porcentajeTirosTres?: number ,
     porcentajeTirosLibres?: number ,
+    desdeCuandoJuegas: Date ,
+    horasEntrenamientoSemana?: number ,
+    horasGymSemana?: number ,
+    pertenecesClub: boolean ,
+    nombreClub?: string ,
+    historialEquipos?: IHistorialEquiposInformacionPersonal[] ,
+    historialEntrenadores?: IHistorialEntrenadoresInformacionPersonal[] ,
+    logrosClave?: ILogrosClaveInformacionPersonal[]
 }

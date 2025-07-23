@@ -11,8 +11,12 @@ import { Ficheros } from '../../entities/Ficheros';
 import { FicherosService } from '../ficheros/ficheros.service';
 import { info } from 'console';
 import { IResponse } from '../../common/interfaces';
-import { IInformacinPersonal } from '../../common/interfaces/informacion-personal/informacion-personal.interface';
+import { IInformacionPersonal } from '../../common/interfaces/informacion-personal/informacion-personal.interface';
 import { CatalogoService } from '../catalogo/catalogo.service';
+import { HistorialEquiposInformacionPersonalService } from '../historial-eventos-informacion-personal/historial-equipos-informacion-personal.service';
+import { HistorialEntrenadoresInformacionPersonalService } from '../historial-entrenadores-informacion-personal/historial-entrenadores-informacion-personal.service';
+import { LogrosClaveInformacionPersonalService } from '../logros-clave-informacion-personal/logros-clave-informacion-personal.service';
+import { v4 as uuidv4 } from 'uuid'; // Asegúrate de instalar: npm install uuid
 
 @Injectable()
 export class InformacionPersonalService {
@@ -25,6 +29,9 @@ export class InformacionPersonalService {
     private readonly _cloudinaryService: CloudinaryService,
     private readonly _dataSource: DataSource,
     private readonly _catalogoService: CatalogoService,
+    private readonly _historialEquipossService: HistorialEquiposInformacionPersonalService,
+    private readonly _historialEntrenadoresService: HistorialEntrenadoresInformacionPersonalService,
+    private readonly _logrosClaveService: LogrosClaveInformacionPersonalService,
   ) { }
 //#endregion
 
@@ -76,9 +83,10 @@ export class InformacionPersonalService {
           }
         }
 
+        // actualizo baskteball
         const { basketball } = dto; 
         
-         for (const key in basketball) {
+        for (const key in basketball) {
           if (basketball[key] !== undefined) {
             existing[key] = basketball[key];
           }
@@ -93,6 +101,33 @@ export class InformacionPersonalService {
           existing.posicionJuegoDos = undefined; 
           existing.posicionJuegoDosId = +basketball.posicionJuegoDos.id;
         }
+
+        // actualizo experiencia
+        const { experiencia } = dto;
+
+        for (const key in experiencia) {
+          if (experiencia[key] !== undefined) {
+            existing[key] = experiencia[key];
+          }
+        }
+
+         // almaceno si existe historial de eventos
+        if (experiencia.historialEquipos) {
+          await this._historialEquipossService.delete(existing.informacionPersonalId, queryRunner.manager);
+          await this._historialEquipossService.insert(existing.informacionPersonalId, experiencia.historialEquipos, queryRunner.manager);
+        }
+
+        // almaceno si existe historial de entrenadores
+        if (experiencia.historialEntrenadores) {
+          await this._historialEntrenadoresService.delete(existing.informacionPersonalId, queryRunner.manager);
+          await this._historialEntrenadoresService.insert(existing.informacionPersonalId, experiencia.historialEntrenadores, queryRunner.manager);
+        }
+
+         // almaceno si existe logros clave
+        if (experiencia.logrosClave) {
+          await this._logrosClaveService.delete(existing.informacionPersonalId, queryRunner.manager);
+          await this._logrosClaveService.insert(existing.informacionPersonalId, experiencia.logrosClave, queryRunner.manager);
+        }
         
         existing.fechaEdicion = new Date();
         existing.usuarioEdicion = usuarioId;
@@ -104,8 +139,8 @@ export class InformacionPersonalService {
         await infoRepo.save(existing);
       } else {
         // nuevo
-        const { perfil, fuerzaResistencia, basketball } = dto;
-        const newInfoPersonal = {
+        const { perfil, fuerzaResistencia, basketball, experiencia } = dto;
+        const newInfoPersonal = infoRepo.create({
           usuarioId,
           fotoPerfilId: ficheroFotoPerfil.ficheroId ? ficheroFotoPerfil.ficheroId : null,
           altura: perfil.altura,
@@ -136,11 +171,31 @@ export class InformacionPersonalService {
           porcentajeTirosMedia: basketball.porcentajeTirosMedia ,
           porcentajeTirosTres: basketball.porcentajeTirosTres ,
           porcentajeTirosLibres: basketball.porcentajeTirosLibres ,
+          desdeCuandoJuegas: experiencia.desdeCuandoJuegas,
+          horasEntrenamientoSemana: experiencia.horasEntrenamientoSemana,
+          horasGymSemana: experiencia.horasGymSemana,
+          pertenecesClub: experiencia.pertenecesClub,
+          nombreClub: experiencia.nombreClub,
           usuarioCreacion: usuarioId
-        }
+        });
       
         await infoRepo.create(newInfoPersonal);
-        await infoRepo.save(newInfoPersonal);
+        const savedInfo = await infoRepo.save(newInfoPersonal);
+
+        // almaceno si existe historial de eventos
+        if (experiencia.historialEquipos) {
+          await this._historialEquipossService.insert(savedInfo.informacionPersonalId, experiencia.historialEquipos, queryRunner.manager);
+        }
+
+        // almaceno si existe historial de entrenadores
+        if (experiencia.historialEntrenadores) {
+          await this._historialEntrenadoresService.insert(savedInfo.informacionPersonalId, experiencia.historialEntrenadores, queryRunner.manager);
+        }
+
+         // almaceno si existe logros clave
+        if (experiencia.logrosClave) {
+          await this._logrosClaveService.insert(savedInfo.informacionPersonalId, experiencia.logrosClave, queryRunner.manager);
+        }
       }
 
       await queryRunner.commitTransaction();
@@ -161,6 +216,7 @@ export class InformacionPersonalService {
 
   async getInformacionPersonal(usuarioId: number) {
     try {
+      // primero la tabla general de informacion personal
       const infoPersonal = await this._informacionPersonalRepository.findOne({
         where: {usuarioId},
         select: {
@@ -195,18 +251,25 @@ export class InformacionPersonalService {
           porcentajeTirosMedia: true ,
           porcentajeTirosTres: true ,
           porcentajeTirosLibres: true ,
+          desdeCuandoJuegas: true ,
+          horasEntrenamientoSemana: true ,
+          horasGymSemana: true ,
+          pertenecesClub: true ,
+          nombreClub: true ,
         }
       });
 
       // si no existe es primera ves y lo saca
-      if (!infoPersonal) this._errorService.setError('algomal');
+      if (!infoPersonal) this._errorService.setError('Erros inesperado favor de contactar con soporte');
       
+      // obtengo el estatus del perfil
       const estatusBusquedaJugador = await this._catalogoService.getInfoCatalogo(
         'estatus_busqueda_jugador_id',
         'estatus_busqueda_jugador',
         infoPersonal.estatusBusquedaJugadorId
       );
 
+      // obtengo las posiciones de basketabll
       const posicionJuegoUno = await this._catalogoService.getInfoCatalogo(
         'posicion_juego_id',
         'posicion_juego',
@@ -218,11 +281,17 @@ export class InformacionPersonalService {
         'posicion_juego',
         infoPersonal.posicionJuegoDosId
       );
-        
+      
+      // obtengo los historial de eventos, entrenadores y logros
+      const historialEquipos = await this._historialEquipossService.getAll(infoPersonal.informacionPersonalId);
+      const historialEntrenadores = await this._historialEntrenadoresService.getAll(infoPersonal.informacionPersonalId);
+      const logrosClave = await this._logrosClaveService.getAll(infoPersonal.informacionPersonalId);
+
+      // recupero la foto de perfil
       const fotoPerfilId = await this._ficherosService.getPublicIdByFicheroId(infoPersonal.fotoPerfilId);
       const fotoPerfilPublicId = await this._cloudinaryService.getImage(fotoPerfilId);
 
-      const sendInfoPersonal: IInformacinPersonal = {
+      const sendInfoPersonal: IInformacionPersonal = {
         ...infoPersonal,
         fotoPerfilPublicUrl: fotoPerfilPublicId,
         estatusBusquedaJugador,
@@ -233,18 +302,24 @@ export class InformacionPersonalService {
       // Si manoJuego viene como Buffer o Uint8Array
       const manoJuegoBuffer = sendInfoPersonal.manoJuego;
       const clavasBuffer = sendInfoPersonal.clavas;
+      const perteneceClubBuffer = sendInfoPersonal.pertenecesClub
       
       // Convertimos a boolean
       const manoJuegoBool = manoJuegoBuffer[0] !== 0;
       const clavasBool = clavasBuffer[0] !== 0;
+      const perteneClubBool = perteneceClubBuffer[0] !== 0;
 
-      const response:IResponse<IInformacinPersonal> = {
+      const response:IResponse<IInformacionPersonal> = {
         statusCode: HttpStatus.OK,
         mensaje: 'Información obtenida.',
         data: {
           ...sendInfoPersonal,
           manoJuego: manoJuegoBool,
-          clavas: clavasBool
+          clavas: clavasBool,
+          pertenecesClub:perteneClubBool,
+          historialEquipos,
+          historialEntrenadores,
+          logrosClave
         }
       }
 

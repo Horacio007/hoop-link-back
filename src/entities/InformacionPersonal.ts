@@ -4,12 +4,16 @@ import {
   Index,
   JoinColumn,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
 } from "typeorm";
+import { HistorialEntrenadoresInformacionPersonal } from "./HistorialEntrenadoresInformacionPersonal";
+import { HistorialEquiposInformacionPersonal } from "./HistorialEquiposInformacionPersonal";
 import { EstatusBusquedaJugador } from "./EstatusBusquedaJugador";
 import { Ficheros } from "./Ficheros";
 import { PosicionJuego } from "./PosicionJuego";
 import { Usuario } from "./Usuario";
+import { LogrosClaveInformacionPersonal } from "./LogrosClaveInformacionPersonal";
 
 @Index(
   "FK_informacion_personal_estatus_busqueda_jugador",
@@ -162,6 +166,25 @@ export class InformacionPersonal {
   })
   porcentajeTirosLibres: number | null;
 
+  @Column("datetime", { name: "desde_cuando_juegas", nullable: true })
+  desdeCuandoJuegas: Date | null;
+
+  @Column("float", {
+    name: "horas_entrenamiento_semana",
+    nullable: true,
+    precision: 12,
+  })
+  horasEntrenamientoSemana: number | null;
+
+  @Column("float", { name: "horas_gym_semana", nullable: true, precision: 12 })
+  horasGymSemana: number | null;
+
+  @Column("bit", { name: "perteneces_club", default: () => "'0'" })
+  pertenecesClub: boolean;
+
+  @Column("varchar", { name: "nombre_club", nullable: true, length: 100 })
+  nombreClub: string | null;
+
   @Column("datetime", {
     name: "fechaCreacion",
     default: () => "CURRENT_TIMESTAMP",
@@ -180,6 +203,20 @@ export class InformacionPersonal {
 
   @Column("int", { name: "usuarioEdicion", nullable: true })
   usuarioEdicion: number | null;
+
+  @OneToMany(
+    () => HistorialEntrenadoresInformacionPersonal,
+    (historialEntrenadoresInformacionPersonal) =>
+      historialEntrenadoresInformacionPersonal.informacionPersonal
+  )
+  historialEntrenadoresInformacionPersonals: HistorialEntrenadoresInformacionPersonal[];
+
+  @OneToMany(
+    () => HistorialEquiposInformacionPersonal,
+    (historialEquiposInformacionPersonal) =>
+      historialEquiposInformacionPersonal.informacionPersonal
+  )
+  historialEquiposInformacionPersonals: HistorialEquiposInformacionPersonal[];
 
   @ManyToOne(
     () => EstatusBusquedaJugador,
@@ -227,4 +264,11 @@ export class InformacionPersonal {
   })
   @JoinColumn([{ name: "usuario_id", referencedColumnName: "usuarioId" }])
   usuario: Usuario;
+
+  @OneToMany(
+    () => LogrosClaveInformacionPersonal,
+    (logrosClaveInformacionPersonal) =>
+      logrosClaveInformacionPersonal.informacionPersonal
+  )
+  logrosClaveInformacionPersonals: LogrosClaveInformacionPersonal[];
 }
