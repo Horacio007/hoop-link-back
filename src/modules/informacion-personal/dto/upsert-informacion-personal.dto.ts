@@ -8,6 +8,7 @@ import { PerfilDto } from './perfil-dto';
 import { FuerzaResistenciaDto } from './fuerza-resistencia-dto';
 import { BasketballDto } from './basketball.dto';
 import { ExperienciaDto } from './experiencia.dto';
+import { VisionDto } from './vision.dto';
 
 export class UpsertInformacionPersonalDto {
 
@@ -21,5 +22,8 @@ export class UpsertInformacionPersonalDto {
   basketball: BasketballDto;
 
   @IsNotEmpty({message: ValidacionesDTOs({campo: 'ExperienciaDto'}, ValidationEnumsDTOs.isNotEmpty)})
-  experiencia: ExperienciaDto
+  experiencia: ExperienciaDto;
+
+  @IsNotEmpty({message: ValidacionesDTOs({campo: 'VisionDto'}, ValidationEnumsDTOs.isNotEmpty)})
+  vision: VisionDto;
 }

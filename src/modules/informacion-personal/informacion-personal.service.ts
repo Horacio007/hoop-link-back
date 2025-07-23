@@ -128,6 +128,15 @@ export class InformacionPersonalService {
           await this._logrosClaveService.delete(existing.informacionPersonalId, queryRunner.manager);
           await this._logrosClaveService.insert(existing.informacionPersonalId, experiencia.logrosClave, queryRunner.manager);
         }
+
+        //actualizo vision
+        const { vision } = dto;
+
+        for (const key in vision) {
+          if (vision[key] !== undefined) {
+            existing[key] = vision[key];
+          }
+        }
         
         existing.fechaEdicion = new Date();
         existing.usuarioEdicion = usuarioId;
@@ -139,7 +148,7 @@ export class InformacionPersonalService {
         await infoRepo.save(existing);
       } else {
         // nuevo
-        const { perfil, fuerzaResistencia, basketball, experiencia } = dto;
+        const { perfil, fuerzaResistencia, basketball, experiencia, vision } = dto;
         const newInfoPersonal = infoRepo.create({
           usuarioId,
           fotoPerfilId: ficheroFotoPerfil.ficheroId ? ficheroFotoPerfil.ficheroId : null,
@@ -176,6 +185,8 @@ export class InformacionPersonalService {
           horasGymSemana: experiencia.horasGymSemana,
           pertenecesClub: experiencia.pertenecesClub,
           nombreClub: experiencia.nombreClub,
+          objetivos: vision.objetivos,
+          valores: vision.valores,
           usuarioCreacion: usuarioId
         });
       
@@ -256,6 +267,8 @@ export class InformacionPersonalService {
           horasGymSemana: true ,
           pertenecesClub: true ,
           nombreClub: true ,
+          objetivos: true ,
+          valores: true ,
         }
       });
 

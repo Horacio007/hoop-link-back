@@ -185,6 +185,12 @@ export class InformacionPersonal {
   @Column("varchar", { name: "nombre_club", nullable: true, length: 100 })
   nombreClub: string | null;
 
+  @Column("varchar", { name: "objetivos", nullable: true, length: 100 })
+  objetivos: string | null;
+
+  @Column("varchar", { name: "valores", nullable: true, length: 100 })
+  valores: string | null;
+
   @Column("datetime", {
     name: "fechaCreacion",
     default: () => "CURRENT_TIMESTAMP",
