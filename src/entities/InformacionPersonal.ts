@@ -9,12 +9,13 @@ import {
 } from "typeorm";
 import { HistorialEntrenadoresInformacionPersonal } from "./HistorialEntrenadoresInformacionPersonal";
 import { HistorialEquiposInformacionPersonal } from "./HistorialEquiposInformacionPersonal";
-import { EstatusBusquedaJugador } from "./EstatusBusquedaJugador";
 import { Ficheros } from "./Ficheros";
+import { EstatusBusquedaJugador } from "./EstatusBusquedaJugador";
 import { PosicionJuego } from "./PosicionJuego";
 import { Usuario } from "./Usuario";
 import { LogrosClaveInformacionPersonal } from "./LogrosClaveInformacionPersonal";
 
+@Index("FK1_video_jugando_ficheros", ["videoJugandoId"], {})
 @Index(
   "FK_informacion_personal_estatus_busqueda_jugador",
   ["estatusBusquedaJugadorId"],
@@ -24,6 +25,10 @@ import { LogrosClaveInformacionPersonal } from "./LogrosClaveInformacionPersonal
 @Index("FK_informacion_personal_usuario", ["usuarioId"], {})
 @Index("FK_posicion_juego_dos_id", ["posicionJuegoDosId"], {})
 @Index("FK_posicion_juego_uno_id", ["posicionJuegoUnoId"], {})
+@Index("FK_video_botando_ficheros", ["videoBotandoId"], {})
+@Index("FK_video_colada_ficheros", ["videoColadaId"], {})
+@Index("FK_video_entrenando_ficheros", ["videoEntrenandoId"], {})
+@Index("FK_video_tirando_ficheros", ["videoTirandoId"], {})
 @Entity("informacion_personal", { schema: "hoop-link" })
 export class InformacionPersonal {
   @PrimaryGeneratedColumn({ type: "int", name: "informacion_personal_id" })
@@ -191,6 +196,21 @@ export class InformacionPersonal {
   @Column("varchar", { name: "valores", nullable: true, length: 100 })
   valores: string | null;
 
+  @Column("int", { name: "video_botando_Id", nullable: true })
+  videoBotandoId: number | null;
+
+  @Column("int", { name: "video_tirando_id", nullable: true })
+  videoTirandoId: number | null;
+
+  @Column("int", { name: "video_colada_id", nullable: true })
+  videoColadaId: number | null;
+
+  @Column("int", { name: "video_entrenando_id", nullable: true })
+  videoEntrenandoId: number | null;
+
+  @Column("int", { name: "video_jugando_id", nullable: true })
+  videoJugandoId: number | null;
+
   @Column("datetime", {
     name: "fechaCreacion",
     default: () => "CURRENT_TIMESTAMP",
@@ -224,6 +244,13 @@ export class InformacionPersonal {
   )
   historialEquiposInformacionPersonals: HistorialEquiposInformacionPersonal[];
 
+  @ManyToOne(() => Ficheros, (ficheros) => ficheros.informacionPersonals, {
+    onDelete: "NO ACTION",
+    onUpdate: "NO ACTION",
+  })
+  @JoinColumn([{ name: "video_jugando_id", referencedColumnName: "ficheroId" }])
+  videoJugando: Ficheros;
+
   @ManyToOne(
     () => EstatusBusquedaJugador,
     (estatusBusquedaJugador) => estatusBusquedaJugador.informacionPersonals,
@@ -237,7 +264,7 @@ export class InformacionPersonal {
   ])
   estatusBusquedaJugador: EstatusBusquedaJugador;
 
-  @ManyToOne(() => Ficheros, (ficheros) => ficheros.informacionPersonals, {
+  @ManyToOne(() => Ficheros, (ficheros) => ficheros.informacionPersonals2, {
     onDelete: "NO ACTION",
     onUpdate: "NO ACTION",
   })
@@ -270,6 +297,36 @@ export class InformacionPersonal {
   })
   @JoinColumn([{ name: "usuario_id", referencedColumnName: "usuarioId" }])
   usuario: Usuario;
+
+  @ManyToOne(() => Ficheros, (ficheros) => ficheros.informacionPersonals3, {
+    onDelete: "NO ACTION",
+    onUpdate: "NO ACTION",
+  })
+  @JoinColumn([{ name: "video_botando_Id", referencedColumnName: "ficheroId" }])
+  videoBotando: Ficheros;
+
+  @ManyToOne(() => Ficheros, (ficheros) => ficheros.informacionPersonals4, {
+    onDelete: "NO ACTION",
+    onUpdate: "NO ACTION",
+  })
+  @JoinColumn([{ name: "video_colada_id", referencedColumnName: "ficheroId" }])
+  videoColada: Ficheros;
+
+  @ManyToOne(() => Ficheros, (ficheros) => ficheros.informacionPersonals5, {
+    onDelete: "NO ACTION",
+    onUpdate: "NO ACTION",
+  })
+  @JoinColumn([
+    { name: "video_entrenando_id", referencedColumnName: "ficheroId" },
+  ])
+  videoEntrenando: Ficheros;
+
+  @ManyToOne(() => Ficheros, (ficheros) => ficheros.informacionPersonals6, {
+    onDelete: "NO ACTION",
+    onUpdate: "NO ACTION",
+  })
+  @JoinColumn([{ name: "video_tirando_id", referencedColumnName: "ficheroId" }])
+  videoTirando: Ficheros;
 
   @OneToMany(
     () => LogrosClaveInformacionPersonal,

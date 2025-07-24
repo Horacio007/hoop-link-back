@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, UploadedFile, UseInterceptors, BadRequestException, Req } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, UploadedFile, UseInterceptors, BadRequestException, Req, Query } from '@nestjs/common';
 import { InformacionPersonalService } from './informacion-personal.service';
 import { UpsertInformacionPersonalDto } from './dto/upsert-informacion-personal.dto';
 import { AuthGuard } from '@nestjs/passport';
@@ -54,6 +54,18 @@ export class InformacionPersonalController {
   @UseGuards(AccessTokenGuard)
   async getInformacionPersonal(@User() user: JwtPayload) {
     return await this._informacionPersonalService.getInformacionPersonal(+user.id);
+  }
+
+  @Post('upload-video/:tipo/:id?')
+  @UseInterceptors(FileInterceptor('file'))
+  @UseGuards(AccessTokenGuard)
+  async uploadVideo(
+    @User() user: JwtPayload,
+    @UploadedFile() file: Express.Multer.File,
+    @Param('tipo') tipo: string,
+    @Query('id') id?: number,
+  ) {
+    return await this._informacionPersonalService.uploadVideo(+user.id, file, +id, tipo);
   }
 //#endregion
 }

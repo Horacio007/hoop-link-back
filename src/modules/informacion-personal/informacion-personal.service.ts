@@ -17,6 +17,8 @@ import { HistorialEquiposInformacionPersonalService } from '../historial-eventos
 import { HistorialEntrenadoresInformacionPersonalService } from '../historial-entrenadores-informacion-personal/historial-entrenadores-informacion-personal.service';
 import { LogrosClaveInformacionPersonalService } from '../logros-clave-informacion-personal/logros-clave-informacion-personal.service';
 import { v4 as uuidv4 } from 'uuid'; // Asegúrate de instalar: npm install uuid
+import { RoutesPathsClodudinary } from '../../common/cloudinary/constants/route-paths.const';
+import { IVideoInformacionPersonalResponse } from '../../common/interfaces/informacion-personal/videos/videos-response.interface';
 
 @Injectable()
 export class InformacionPersonalService {
@@ -47,14 +49,14 @@ export class InformacionPersonalService {
       let fotoPerfilResponse: UploadApiResponse;
       let ficheroFotoPerfil: Ficheros;
 
+      const existing = await this._informacionPersonalRepository.findOneBy({ usuarioId });
+
       // primero guardo foto perfil
       if (fotoPerfil) {
-        console.log('entro sin una foto nueva');
-        fotoPerfilResponse = await this._cloudinaryService.uploadFile(fotoPerfil);
-        ficheroFotoPerfil = await this._ficherosService.uploadFotoPerfil(usuarioId, fotoPerfilResponse, dto.perfil.fotoPerfilId, queryRunner.manager);
+        fotoPerfilResponse = await this._cloudinaryService.uploadFile(fotoPerfil, RoutesPathsClodudinary.IMAGEN_PERFIL);
+        ficheroFotoPerfil = await this._ficherosService.uploadFichero(usuarioId, fotoPerfilResponse, existing.fotoPerfilId ?? 0, RoutesPathsClodudinary.IMAGEN_PERFIL, queryRunner.manager);
       }
       
-      const existing = await this._informacionPersonalRepository.findOneBy({ usuarioId });
       if (existing) {
         const { perfil } = dto;
         console.log('ENTRE', existing);
@@ -269,6 +271,11 @@ export class InformacionPersonalService {
           nombreClub: true ,
           objetivos: true ,
           valores: true ,
+          videoBotandoId: true ,
+          videoTirandoId: true ,
+          videoColadaId: true ,
+          videoEntrenandoId: true ,
+          videoJugandoId: true , 
         }
       });
 
@@ -304,12 +311,64 @@ export class InformacionPersonalService {
       const fotoPerfilId = await this._ficherosService.getPublicIdByFicheroId(infoPersonal.fotoPerfilId);
       const fotoPerfilPublicId = await this._cloudinaryService.getImage(fotoPerfilId);
 
+      // recupero los diferentes videos
+      let videoBotandoPublicId;
+      if (infoPersonal.videoBotandoId) {
+        const videoBotando = await this._ficherosService.getPublicIdByFicheroId(infoPersonal.videoBotandoId ?? 0);
+        videoBotandoPublicId = await this._cloudinaryService.getVideo(videoBotando);
+      }
+
+      let videoTirandoPublicId;
+      if (infoPersonal.videoTirandoId) {
+        const videoTirando = await this._ficherosService.getPublicIdByFicheroId(infoPersonal.videoTirandoId);
+        videoTirandoPublicId = await this._cloudinaryService.getVideo(videoTirando); 
+      }
+
+      let videoColadaPublicId;
+      if (infoPersonal.videoColadaId) {
+        const videoColada = await this._ficherosService.getPublicIdByFicheroId(infoPersonal.videoColadaId);
+        videoColadaPublicId = await this._cloudinaryService.getVideo(videoColada);
+
+      }
+
+      let videoEntrenandoPublicId;
+      if (infoPersonal.videoEntrenandoId) {
+        const videoEntrenando = await this._ficherosService.getPublicIdByFicheroId(infoPersonal.videoEntrenandoId);
+        videoEntrenandoPublicId = await this._cloudinaryService.getVideo(videoEntrenando);
+      }
+
+      let videoJugandoPublicId;
+      if (infoPersonal.videoJugandoId) {
+        const videoJugando = await this._ficherosService.getPublicIdByFicheroId(infoPersonal.videoJugandoId);
+        videoJugandoPublicId = await this._cloudinaryService.getVideo(videoJugando);
+      } 
+
       const sendInfoPersonal: IInformacionPersonal = {
         ...infoPersonal,
         fotoPerfilPublicUrl: fotoPerfilPublicId,
         estatusBusquedaJugador,
         posicionJuegoUno,
         posicionJuegoDos,
+      }
+
+      if (videoBotandoPublicId) {
+        sendInfoPersonal.videoBotandoPublicUrl = videoBotandoPublicId['url'];
+      }
+
+      if (videoTirandoPublicId) {
+        sendInfoPersonal.videoTirandoPublicUrl = videoTirandoPublicId['url'];
+      }
+
+      if (videoColadaPublicId) {
+        sendInfoPersonal.videoColadaPublicUrl = videoColadaPublicId['url'];
+      }
+
+      if (videoEntrenandoPublicId) {
+        sendInfoPersonal.videoEntrenandoPublicUrl = videoEntrenandoPublicId['url'];
+      }
+
+      if (videoJugandoPublicId) {
+        sendInfoPersonal.videoJugandoPublicUrl = videoJugandoPublicId['url'];
       }
 
       // Si manoJuego viene como Buffer o Uint8Array
@@ -330,15 +389,176 @@ export class InformacionPersonalService {
           manoJuego: manoJuegoBool,
           clavas: clavasBool,
           pertenecesClub:perteneClubBool,
-          historialEquipos,
+          historialEquipos: historialEquipos,
           historialEntrenadores,
-          logrosClave
+          logrosClave,
         }
       }
-
+      // console.log(response);
       return response;
     } catch (error) {
       this._errorService.errorHandle(error, ErrorMethods.BadRequestException);
+    }
+  }
+
+  async uploadVideo(usuarioId:number, file: Express.Multer.File, ficheroId:number, tipo:string): Promise<IResponse<IVideoInformacionPersonalResponse>> {
+    const queryRunner = this._dataSource.createQueryRunner();
+
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+    const infoRepo = queryRunner.manager.getRepository(InformacionPersonal);
+
+    try {
+      if (file) {
+        const videoResponse = await this._cloudinaryService.uploadFile(file, RoutesPathsClodudinary.VIDEOS_INFORMACION_PERSONAL, "video");
+        let ficheroVideoResponse;
+        switch (tipo) {
+          case "Botando":
+            const ficheroBotandoId = await infoRepo.findOne({
+              where: {usuarioId},
+              select: {
+                videoBotandoId: true
+              }
+            });
+
+            ficheroVideoResponse = await this._ficherosService.uploadFichero(usuarioId, videoResponse, ficheroBotandoId !== null ? ficheroBotandoId?.videoBotandoId : 0, RoutesPathsClodudinary.VIDEOS_INFORMACION_PERSONAL, queryRunner.manager, "video");
+            console.log('entro al botando');
+            const infoPersonalBotando = await infoRepo.findOne({
+              where: {usuarioId},
+              select: {
+                informacionPersonalId: true,
+                videoBotandoId: true ,
+              }
+            });
+
+            if (infoPersonalBotando) {
+              console.log('entro al update');
+              infoPersonalBotando.videoBotandoId = ficheroVideoResponse.ficheroId;
+              const result = await infoRepo.save(infoPersonalBotando);
+              console.log('Resultado del save:', result);
+            }
+
+            break;
+
+          case "Tirando":
+            const ficheroTirandoId = await infoRepo.findOne({
+              where: {usuarioId},
+              select: {
+                videoTirandoId: true
+              }
+            });
+
+            ficheroVideoResponse = await this._ficherosService.uploadFichero(usuarioId, videoResponse, ficheroTirandoId !== null ? ficheroTirandoId?.videoTirandoId : 0, RoutesPathsClodudinary.VIDEOS_INFORMACION_PERSONAL, queryRunner.manager, "video");
+            
+            const infoPersonalTirando = await infoRepo.findOne({
+              where: {usuarioId},
+              select: {
+                informacionPersonalId: true,
+                videoTirandoId: true ,
+              }
+            });
+
+            if (infoPersonalTirando) {
+              infoPersonalTirando.videoTirandoId = ficheroVideoResponse.ficheroId;
+              await infoRepo.save(infoPersonalTirando);
+            }  
+            break;
+          
+          case "Colada":
+            let ficheroColadaId = await infoRepo.findOne({
+              where: {usuarioId},
+              select: {
+                videoColadaId: true
+              }
+            });
+                        
+            ficheroVideoResponse = await this._ficherosService.uploadFichero(usuarioId, videoResponse, ficheroColadaId !== null ? ficheroColadaId?.videoColadaId : 0, RoutesPathsClodudinary.VIDEOS_INFORMACION_PERSONAL, queryRunner.manager, "video");
+           
+            const infoPersonalColada = await infoRepo.findOne({
+              where: {usuarioId},
+              select: {
+                informacionPersonalId: true,
+                videoColadaId: true ,
+              }
+            });
+
+            if (infoPersonalColada) {
+              infoPersonalColada.videoColadaId = ficheroVideoResponse.ficheroId;
+              await infoRepo.save(infoPersonalColada);
+            }  
+            break;
+
+          case "Entrenando":
+              const ficheroEntrenandoId = await infoRepo.findOne({
+              where: {usuarioId},
+              select: {
+                videoEntrenandoId: true
+              }
+            });
+
+            ficheroVideoResponse = await this._ficherosService.uploadFichero(usuarioId, videoResponse, ficheroEntrenandoId !== null ? ficheroEntrenandoId?.videoEntrenandoId : 0, RoutesPathsClodudinary.VIDEOS_INFORMACION_PERSONAL, queryRunner.manager, "video");
+
+            const infoPersonalEntrenando = await infoRepo.findOne({
+              where: {usuarioId},
+              select: {
+                informacionPersonalId: true,
+                videoEntrenandoId: true ,
+              }
+            });
+
+            if (infoPersonalEntrenando) {
+              infoPersonalEntrenando.videoEntrenandoId = ficheroVideoResponse.ficheroId;
+              await infoRepo.save(infoPersonalEntrenando);
+            }  
+            break;
+        
+          case "Jugando":
+             const ficheroJugandoId = await infoRepo.findOne({
+              where: {usuarioId},
+              select: {
+                videoJugandoId: true
+              }
+            });
+                        
+            ficheroVideoResponse = await this._ficherosService.uploadFichero(usuarioId, videoResponse, ficheroJugandoId !== null ? ficheroJugandoId?.videoJugandoId : 0, RoutesPathsClodudinary.VIDEOS_INFORMACION_PERSONAL, queryRunner.manager, "video");
+            console.log(ficheroVideoResponse);
+            const infoPersonalJugando = await infoRepo.findOne({
+              where: {usuarioId},
+              select: {
+                informacionPersonalId: true,
+                videoJugandoId: true ,
+              }
+            });
+
+            if (infoPersonalJugando) {
+              infoPersonalJugando.videoJugandoId = ficheroVideoResponse.ficheroId;
+              await infoRepo.save(infoPersonalJugando);
+            }  
+            break;
+
+          default:
+            break;
+        }
+
+        await queryRunner.commitTransaction();
+
+        const response:IResponse<IVideoInformacionPersonalResponse> = {
+          statusCode: HttpStatus.OK,
+          mensaje: 'Fichero actualizado.',
+          data: {
+             ficheroId: ficheroVideoResponse.ficheroId,
+            pathPublic: videoResponse.secure_url
+          }
+        }
+
+        return response;
+      }
+    } catch (error) {
+      console.log(error);
+      await queryRunner.rollbackTransaction();
+      this._errorService.errorHandle(error, ErrorMethods.BadRequestException);
+    } finally {
+      await queryRunner.release();
     }
   }
 //#endregion
