@@ -211,6 +211,18 @@ export class InformacionPersonal {
   @Column("int", { name: "video_jugando_id", nullable: true })
   videoJugandoId: number | null;
 
+  @Column("varchar", { name: "facebook", nullable: true, length: 200 })
+  facebook: string | null;
+
+  @Column("varchar", { name: "instagram", nullable: true, length: 200 })
+  instagram: string | null;
+
+  @Column("varchar", { name: "tiktok", nullable: true, length: 200 })
+  tiktok: string | null;
+
+  @Column("varchar", { name: "youtube", nullable: true, length: 200 })
+  youtube: string | null;
+
   @Column("datetime", {
     name: "fechaCreacion",
     default: () => "CURRENT_TIMESTAMP",
@@ -251,6 +263,13 @@ export class InformacionPersonal {
   @JoinColumn([{ name: "video_jugando_id", referencedColumnName: "ficheroId" }])
   videoJugando: Ficheros;
 
+  @ManyToOne(() => Ficheros, (ficheros) => ficheros.informacionPersonals2, {
+    onDelete: "NO ACTION",
+    onUpdate: "NO ACTION",
+  })
+  @JoinColumn([{ name: "video_colada_id", referencedColumnName: "ficheroId" }])
+  videoColada: Ficheros;
+
   @ManyToOne(
     () => EstatusBusquedaJugador,
     (estatusBusquedaJugador) => estatusBusquedaJugador.informacionPersonals,
@@ -264,12 +283,28 @@ export class InformacionPersonal {
   ])
   estatusBusquedaJugador: EstatusBusquedaJugador;
 
-  @ManyToOne(() => Ficheros, (ficheros) => ficheros.informacionPersonals2, {
+  @ManyToOne(() => Ficheros, (ficheros) => ficheros.informacionPersonals3, {
+    onDelete: "NO ACTION",
+    onUpdate: "NO ACTION",
+  })
+  @JoinColumn([{ name: "video_botando_Id", referencedColumnName: "ficheroId" }])
+  videoBotando: Ficheros;
+
+  @ManyToOne(() => Ficheros, (ficheros) => ficheros.informacionPersonals4, {
     onDelete: "NO ACTION",
     onUpdate: "NO ACTION",
   })
   @JoinColumn([{ name: "foto_perfil_id", referencedColumnName: "ficheroId" }])
   fotoPerfil: Ficheros;
+
+  @ManyToOne(() => Ficheros, (ficheros) => ficheros.informacionPersonals5, {
+    onDelete: "NO ACTION",
+    onUpdate: "NO ACTION",
+  })
+  @JoinColumn([
+    { name: "video_entrenando_id", referencedColumnName: "ficheroId" },
+  ])
+  videoEntrenando: Ficheros;
 
   @ManyToOne(
     () => PosicionJuego,
@@ -280,6 +315,13 @@ export class InformacionPersonal {
     { name: "posicion_juego_uno_id", referencedColumnName: "posicionJuegoId" },
   ])
   posicionJuegoUno: PosicionJuego;
+
+  @ManyToOne(() => Ficheros, (ficheros) => ficheros.informacionPersonals6, {
+    onDelete: "NO ACTION",
+    onUpdate: "NO ACTION",
+  })
+  @JoinColumn([{ name: "video_tirando_id", referencedColumnName: "ficheroId" }])
+  videoTirando: Ficheros;
 
   @ManyToOne(
     () => PosicionJuego,
@@ -297,36 +339,6 @@ export class InformacionPersonal {
   })
   @JoinColumn([{ name: "usuario_id", referencedColumnName: "usuarioId" }])
   usuario: Usuario;
-
-  @ManyToOne(() => Ficheros, (ficheros) => ficheros.informacionPersonals3, {
-    onDelete: "NO ACTION",
-    onUpdate: "NO ACTION",
-  })
-  @JoinColumn([{ name: "video_botando_Id", referencedColumnName: "ficheroId" }])
-  videoBotando: Ficheros;
-
-  @ManyToOne(() => Ficheros, (ficheros) => ficheros.informacionPersonals4, {
-    onDelete: "NO ACTION",
-    onUpdate: "NO ACTION",
-  })
-  @JoinColumn([{ name: "video_colada_id", referencedColumnName: "ficheroId" }])
-  videoColada: Ficheros;
-
-  @ManyToOne(() => Ficheros, (ficheros) => ficheros.informacionPersonals5, {
-    onDelete: "NO ACTION",
-    onUpdate: "NO ACTION",
-  })
-  @JoinColumn([
-    { name: "video_entrenando_id", referencedColumnName: "ficheroId" },
-  ])
-  videoEntrenando: Ficheros;
-
-  @ManyToOne(() => Ficheros, (ficheros) => ficheros.informacionPersonals6, {
-    onDelete: "NO ACTION",
-    onUpdate: "NO ACTION",
-  })
-  @JoinColumn([{ name: "video_tirando_id", referencedColumnName: "ficheroId" }])
-  videoTirando: Ficheros;
 
   @OneToMany(
     () => LogrosClaveInformacionPersonal,

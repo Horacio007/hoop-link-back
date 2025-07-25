@@ -139,6 +139,15 @@ export class InformacionPersonalService {
             existing[key] = vision[key];
           }
         }
+
+        //actualizo redes
+        const { redes } = dto;
+
+        for (const key in redes) {
+          if (redes[key] !== undefined) {
+            existing[key] = redes[key];
+          }
+        }
         
         existing.fechaEdicion = new Date();
         existing.usuarioEdicion = usuarioId;
@@ -150,7 +159,7 @@ export class InformacionPersonalService {
         await infoRepo.save(existing);
       } else {
         // nuevo
-        const { perfil, fuerzaResistencia, basketball, experiencia, vision } = dto;
+        const { perfil, fuerzaResistencia, basketball, experiencia, vision, redes } = dto;
         const newInfoPersonal = infoRepo.create({
           usuarioId,
           fotoPerfilId: ficheroFotoPerfil.ficheroId ? ficheroFotoPerfil.ficheroId : null,
@@ -189,6 +198,10 @@ export class InformacionPersonalService {
           nombreClub: experiencia.nombreClub,
           objetivos: vision.objetivos,
           valores: vision.valores,
+          facebook: redes.facebook ,
+          instagram: redes.instagram ,
+          tiktok: redes.tiktok ,
+          youtube: redes.youtube ,
           usuarioCreacion: usuarioId
         });
       
@@ -276,6 +289,10 @@ export class InformacionPersonalService {
           videoColadaId: true ,
           videoEntrenandoId: true ,
           videoJugandoId: true , 
+          facebook: true ,
+          instagram: true ,
+          tiktok: true ,
+          youtube: true ,
         }
       });
 

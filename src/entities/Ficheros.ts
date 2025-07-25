@@ -70,7 +70,7 @@ export class Ficheros {
 
   @OneToMany(
     () => InformacionPersonal,
-    (informacionPersonal) => informacionPersonal.fotoPerfil
+    (informacionPersonal) => informacionPersonal.videoColada
   )
   informacionPersonals2: InformacionPersonal[];
 
@@ -82,7 +82,7 @@ export class Ficheros {
 
   @OneToMany(
     () => InformacionPersonal,
-    (informacionPersonal) => informacionPersonal.videoColada
+    (informacionPersonal) => informacionPersonal.fotoPerfil
   )
   informacionPersonals4: InformacionPersonal[];
 
