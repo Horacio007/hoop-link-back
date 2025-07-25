@@ -18,6 +18,10 @@ import { InformacionPersonal } from './entities/InformacionPersonal';
 import { InformacionPersonalModule } from './modules/informacion-personal/informacion-personal.module';
 import { EstatusModule } from './modules/estatus/estatus.module';
 import { FicherosModule } from './modules/ficheros/ficheros.module';
+import { PosicionJuego } from './entities/PosicionJuego';
+import { HistorialEventosInformacionPersonalModule } from './modules/historial-eventos-informacion-personal/historial-equipos-informacion-personal.module';
+import { HistorialEntrenadoresInformacionPersonalModule } from './modules/historial-entrenadores-informacion-personal/historial-entrenadores-informacion-personal.module';
+import { LogrosClaveInformacionPersonalModule } from './modules/logros-clave-informacion-personal/logros-clave-informacion-personal.module';
 
 
 @Module({
@@ -30,6 +34,10 @@ import { FicherosModule } from './modules/ficheros/ficheros.module';
       database: process.env.DATABASE_NAME,
       username: process.env.DATABASE_USER,
       password: process.env.DATABASE_PASSWORD,
+      // esto en teoria es para usar en azure <------------------
+      ssl: {
+          rejectUnauthorized: true,
+      },
       autoLoadEntities: true,
       synchronize: true,
       entities: [
@@ -43,7 +51,8 @@ import { FicherosModule } from './modules/ficheros/ficheros.module';
         Municipio,
         EstatusBusquedaJugador,
         Ficheros,
-        InformacionPersonal
+        InformacionPersonal,
+        PosicionJuego
       ]
     }),
     AuthModule,
@@ -52,6 +61,9 @@ import { FicherosModule } from './modules/ficheros/ficheros.module';
     InformacionPersonalModule,
     EstatusModule,
     FicherosModule,
+    HistorialEventosInformacionPersonalModule,
+    HistorialEntrenadoresInformacionPersonalModule,
+    LogrosClaveInformacionPersonalModule,
   ],
   controllers: [],
   providers: [],

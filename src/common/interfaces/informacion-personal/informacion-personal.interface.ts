@@ -1,6 +1,9 @@
 import { ICatalogo } from "../../../modules/catalogo/interfaces/catalogo.interface";
+import { IHistorialEntrenadoresInformacionPersonal } from "./historial-entrenadores/historial-entrenadores.ip.interface";
+import { IHistorialEquiposInformacionPersonal } from "./historial-equipos/historial-equipos.ip.interface";
+import { ILogrosClaveInformacionPersonal } from "./logros-clave/logros-clave.ip.interface";
 
-export interface IInformacinPersonal {
+export interface IInformacionPersonal {
     informacionPersonalId: number,
     fotoPerfilId: number,
     altura: number,
@@ -22,4 +25,39 @@ export interface IInformacinPersonal {
     tiempoDistanciaUnKm?: number,
     tiempoDistanciaTresKm?: number,
     tiempoDistanciaCincoKm?: number,
+    anioEmpezoAJugar: Date ,
+    manoJuego: boolean ,
+    posicionJuegoUno: ICatalogo ,
+    posicionJuegoDos: ICatalogo ,
+    clavas: boolean ,
+    puntosPorJuego?: number ,
+    asistenciasPorJuego?: number ,
+    rebotesPorJuego?: number ,
+    porcentajeTirosMedia?: number ,
+    porcentajeTirosTres?: number ,
+    porcentajeTirosLibres?: number ,
+    desdeCuandoJuegas: Date ,
+    horasEntrenamientoSemana?: number ,
+    horasGymSemana?: number ,
+    pertenecesClub: boolean ,
+    nombreClub?: string ,
+    historialEquipos?: IHistorialEquiposInformacionPersonal[] ,
+    historialEntrenadores?: IHistorialEntrenadoresInformacionPersonal[] ,
+    logrosClave?: ILogrosClaveInformacionPersonal[],
+    objetivos?: string,
+    valores?: string ,
+    videoBotandoId?: number ,
+    videoTirandoId?: number ,
+    videoColadaId?: number,
+    videoEntrenandoId?: number ,
+    videoJugandoId?: number,
+    videoBotandoPublicUrl?: string ,
+    videoTirandoPublicUrl?: string ,
+    videoColadaPublicUrl?: string,
+    videoEntrenandoPublicUrl?: string ,
+    videoJugandoPublicUrl?: string,
+    facebook?: string,
+    instagram?: string,
+    tiktok?: string,
+    youtube?: string,
 }

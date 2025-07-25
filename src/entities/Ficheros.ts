@@ -11,8 +11,8 @@ import { Estatus } from "./Estatus";
 import { Usuario } from "./Usuario";
 import { InformacionPersonal } from "./InformacionPersonal";
 
-@Index("FK_ficheros_usuario", ["usuarioId"], {})
 @Index("FK_ficheros_estatus", ["estatusId"], {})
+@Index("FK_ficheros_usuario", ["usuarioId"], {})
 @Entity("ficheros", { schema: "hoop-link" })
 export class Ficheros {
   @PrimaryGeneratedColumn({ type: "int", name: "fichero_id" })
@@ -30,7 +30,7 @@ export class Ficheros {
   @Column("varchar", { name: "folder_id", length: 50 })
   folderId: string;
 
-  @Column("varchar", { name: "archivo_id", length: 50 })
+  @Column("varchar", { name: "archivo_id", length: 200 })
   archivoId: string;
 
   @Column("timestamp", {
@@ -64,7 +64,37 @@ export class Ficheros {
 
   @OneToMany(
     () => InformacionPersonal,
-    (informacionPersonal) => informacionPersonal.fotoPerfil
+    (informacionPersonal) => informacionPersonal.videoJugando
   )
   informacionPersonals: InformacionPersonal[];
+
+  @OneToMany(
+    () => InformacionPersonal,
+    (informacionPersonal) => informacionPersonal.videoColada
+  )
+  informacionPersonals2: InformacionPersonal[];
+
+  @OneToMany(
+    () => InformacionPersonal,
+    (informacionPersonal) => informacionPersonal.videoBotando
+  )
+  informacionPersonals3: InformacionPersonal[];
+
+  @OneToMany(
+    () => InformacionPersonal,
+    (informacionPersonal) => informacionPersonal.fotoPerfil
+  )
+  informacionPersonals4: InformacionPersonal[];
+
+  @OneToMany(
+    () => InformacionPersonal,
+    (informacionPersonal) => informacionPersonal.videoEntrenando
+  )
+  informacionPersonals5: InformacionPersonal[];
+
+  @OneToMany(
+    () => InformacionPersonal,
+    (informacionPersonal) => informacionPersonal.videoTirando
+  )
+  informacionPersonals6: InformacionPersonal[];
 }

@@ -9,7 +9,6 @@ export class FuerzaResistenciaDto {
     @IsNumber()
     usuarioId?: number;
 
-    @IsOptional()
     @IsNumber({},{
         message: ValidacionesDTOs({campo: 'Altura en salto vertical'}, ValidationEnumsDTOs.max)
     })
@@ -21,7 +20,6 @@ export class FuerzaResistenciaDto {
     })
     alturaSaltoVertical?: number;
 
-    @IsOptional()
     @IsNumber({},{
         message: ValidacionesDTOs({campo: 'Distancia en salto horizontal'}, ValidationEnumsDTOs.max)
     })

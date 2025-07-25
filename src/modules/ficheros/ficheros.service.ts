@@ -10,6 +10,7 @@ import { UploadApiResponse } from 'cloudinary';
 import { EstatusService } from '../estatus/estatus.service';
 import { RoutesPathsClodudinary } from '../../common/cloudinary/constants/route-paths.const';
 import { getRepo } from '../../common/helpers/database/repository.helper';
+import { CloudinaryService } from '../../common/cloudinary/services/cloudinary.service';
 
 @Injectable()
 export class FicherosService {
@@ -19,15 +20,24 @@ export class FicherosService {
     private readonly _ficheroRepository:Repository<Ficheros>,
     private readonly _errorService: ErrorHandleService,
     private readonly _estatusService:EstatusService,
+    private readonly _cloudinaryService:CloudinaryService,
   ) { }
 //#endregion
 
-  async uploadFotoPerfil(usuarioId: number, uploaded: UploadApiResponse, ficheroId: number, manager?: EntityManager): Promise<Ficheros> {
+  async uploadFichero(usuarioId: number, uploaded: UploadApiResponse, ficheroId: number, ruta:string, manager?: EntityManager, resourceType: "image" | "video" | "raw" | "auto" = "image"): Promise<Ficheros> {
     const repo = getRepo(this._ficheroRepository, manager);
     try {
+
+      if (isNaN(ficheroId)) {
+        ficheroId = 0;
+      }
       const existing = await this._ficheroRepository.findOneBy({ ficheroId });
-      
+      console.log('aqui el antes del insert',existing);
       if (existing) {
+        // primero elimino la foto anterior para no tener registros innecesarios
+        console.log('id anterior de la imagen:', existing.archivoId);
+        await this._cloudinaryService.destroy(existing.archivoId, resourceType)
+
         // se hace un update
         existing.nombre = uploaded.original_filename;
         existing.archivoId = uploaded.public_id;
@@ -37,14 +47,14 @@ export class FicherosService {
       } else {
         // insert
         const estatusId = await this._estatusService.getEstatusActivoId();
-        const newFichero = {
+        const newFichero = repo.create({
           estatusId,
           usuarioId,
           nombre: uploaded.original_filename,
-          folderId: RoutesPathsClodudinary.IMAGEN_PERFIL,
+          folderId: ruta,
           archivoId: uploaded.public_id,
           usuarioCreacion: usuarioId
-        }
+        });
 
         await repo.create(newFichero);
         return await repo.save(newFichero);

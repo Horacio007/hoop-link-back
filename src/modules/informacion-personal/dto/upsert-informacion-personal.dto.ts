@@ -6,6 +6,10 @@ import { ValidationEnumsDTOs } from '../../../common/enums/validations/validatio
 import { ValidacionesDTOs } from '../../../common/validations/validation.function';
 import { PerfilDto } from './perfil-dto';
 import { FuerzaResistenciaDto } from './fuerza-resistencia-dto';
+import { BasketballDto } from './basketball.dto';
+import { ExperienciaDto } from './experiencia.dto';
+import { VisionDto } from './vision.dto';
+import { RedesSocialesDto } from './redes-sociales.dto';
 
 export class UpsertInformacionPersonalDto {
 
@@ -14,4 +18,16 @@ export class UpsertInformacionPersonalDto {
 
   @IsNotEmpty({message: ValidacionesDTOs({campo: 'fuerzaResistencia'}, ValidationEnumsDTOs.isNotEmpty)})
   fuerzaResistencia: FuerzaResistenciaDto;
+
+  @IsNotEmpty({message: ValidacionesDTOs({campo: 'BasketballDto'}, ValidationEnumsDTOs.isNotEmpty)})
+  basketball: BasketballDto;
+
+  @IsNotEmpty({message: ValidacionesDTOs({campo: 'ExperienciaDto'}, ValidationEnumsDTOs.isNotEmpty)})
+  experiencia: ExperienciaDto;
+
+  @IsNotEmpty({message: ValidacionesDTOs({campo: 'VisionDto'}, ValidationEnumsDTOs.isNotEmpty)})
+  vision: VisionDto;
+
+  @IsNotEmpty({message: ValidacionesDTOs({campo: 'RedesSocialesDto'}, ValidationEnumsDTOs.isNotEmpty)})
+  redes: RedesSocialesDto;
 }

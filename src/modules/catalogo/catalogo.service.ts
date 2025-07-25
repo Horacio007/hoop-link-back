@@ -104,6 +104,28 @@ export class CatalogoService {
     }
   }
 
+  async getAllPosicionJugador(): Promise<ICatalogo[]> {
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+
+    try {
+      const estados: ICatalogo[] = await queryRunner.query(`
+          select
+            posicion_juego_id as id,
+            nombre
+          from posicion_juego
+        `);
+
+      return estados;
+    } catch (error) {
+      await queryRunner.release();
+      this.errorHandleService.errorHandle(error, ErrorMethods.BadRequestException);
+    }
+    finally {
+      await queryRunner.release();
+    }
+  }
+
   async getInfoCatalogo(nombreColumna: string, nombreTabla: string, id: number): Promise<ICatalogo> {
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();

@@ -28,7 +28,7 @@ async function bootstrap() {
       // Permite solicitudes sin origen (Postman, backends, etc.)
       if (!origin) return callback(null, true);
 
-      const allowedOrigins = ['http://localhost:4200', 'https://tu-dominio.com'];
+      const allowedOrigins = ['http://localhost:4200', 'https://hooplink2.com'];
 
       if (allowedOrigins.includes(origin)) {
         callback(null, true);
