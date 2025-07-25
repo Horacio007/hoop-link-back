@@ -34,6 +34,10 @@ import { LogrosClaveInformacionPersonalModule } from './modules/logros-clave-inf
       database: process.env.DATABASE_NAME,
       username: process.env.DATABASE_USER,
       password: process.env.DATABASE_PASSWORD,
+      // esto en teoria es para usar en azure
+      ssl: {
+          rejectUnauthorized: true,
+      },
       autoLoadEntities: true,
       synchronize: true,
       entities: [
