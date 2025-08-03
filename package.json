@@ -18,7 +18,8 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
-    "generate:entities": "typeorm-model-generator -h localhost -d hoop-link -u root -x paste2024 -e mysql -o src"
+    "generate:entities": "typeorm-model-generator -h localhost -d hoop-link -u root -x paste2024 -e mysql -o src",
+    "heroku-postbuild": "npm run build"
   },
   "dependencies": {
     "@nestjs-modules/mailer": "^2.0.2",
