@@ -43,7 +43,7 @@ async function bootstrap() {
 
   app.setGlobalPrefix('api');
 
-  await app.listen(process.env.PORT_LAUNCH);
+  await app.listen(process.env.PORT_LAUNCH || '0.0.0.0');
   logger.log(`App running on port ${process.env.PORT_LAUNCH}`);
 }
 bootstrap();
