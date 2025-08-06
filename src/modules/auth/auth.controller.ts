@@ -27,14 +27,14 @@ export class AuthController {
     res.cookie('accessToken', token, {
       httpOnly: true,
       secure: isProd,
-      sameSite: isProd ? 'strict' : 'lax',
+      sameSite: isProd ? 'none' : 'lax',
       maxAge: 1000 * 60 * 120
     });
   
     res.cookie('refreshToken', refreshtoken, {
       httpOnly: true,
       secure: isProd,
-      sameSite: isProd ? 'strict' : 'lax',
+      sameSite: isProd ? 'none' : 'lax',
       maxAge: 1000 * 60 * 60 * 24 * 2
     });
 
@@ -52,14 +52,14 @@ export class AuthController {
     res.cookie('accessToken', newAccessToken, {
       httpOnly: true,
       secure: isProd,
-      sameSite: isProd ? 'strict' : 'lax',
+      sameSite: isProd ? 'none' : 'lax',
       maxAge: 1000 * 60 * 120 // 120 minutos
     });
 
     res.cookie('refreshToken', newRefreshToken, {
       httpOnly: true,
       secure: isProd,
-      sameSite: isProd ? 'strict' : 'lax',
+      sameSite: isProd ? 'none' : 'lax',
       maxAge: 1000 * 60 * 60 * 24 * 2 // 2 días
     });
 
@@ -69,17 +69,18 @@ export class AuthController {
   @UseGuards(AccessTokenGuard)
   @Post('logout')
   logout(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
+    const isProd = process.env.NODE_ENV === 'production';
     res.clearCookie('accessToken', {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
+      secure: isProd,
+     sameSite: isProd ? 'none' : 'strict',
       path: '/', // o el path que usaste al setearlo
     });
   
     res.clearCookie('refreshToken', {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
+      secure: isProd,
+     sameSite: isProd ? 'none' : 'strict',
       path: '/', // asegúrate que coincida con el original
     });
   
