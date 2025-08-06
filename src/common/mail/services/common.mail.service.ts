@@ -29,7 +29,7 @@ export class MailService {
 
     private async getIndexGif(type: string): Promise<IFileGif> {
       try {
-        const ruta = this.isProd ? resolve(__dirname, '../assets/gif', type) : resolve(__dirname, '../../assets/gif', type);
+        const ruta = this.isProd ? resolve(__dirname, '../../../assets/gif', type) : resolve(__dirname, '../../assets/gif', type);
         const archivos = await readdir(ruta); // ¡Aquí usas await correctamente!
         const randomIndex = Math.floor(Math.random() * archivos.length);
 
@@ -47,7 +47,7 @@ export class MailService {
         const {files:archivos, index:randomIndex} = await this.getIndexGif(type);
         const attachment: IAttachmentGif = {
           filename: archivos[randomIndex],
-          path: join(__dirname + "../../../assets") + "/gif/" + type + "/" + archivos[randomIndex],
+          path: this.isProd ? join(__dirname + "../../../../assets") + "/gif/" + type + "/" + archivos[randomIndex] : join(__dirname + "../../../assets") + "/gif/" + type + "/" + archivos[randomIndex],
           cid: 'gif'
         };
 
@@ -67,7 +67,7 @@ export class MailService {
           ...(attachments || []),
           {
               filename: "HOOPArtboard 51@8x.png",
-              path: join(__dirname + "../../../assets") + "/img/HOOPArtboard 51@8x.png",
+              path: this.isProd ? join(__dirname + "../../../../assets") + "/img/HOOPArtboard 51@8x.png" : join(__dirname + "../../../assets") + "/img/HOOPArtboard 51@8x.png",
               cid: "logo",
           },
           gifAttachment
@@ -82,7 +82,7 @@ export class MailService {
         });
         console.log(`Correo electrónico enviado a ${destinatario}`);
       } catch (error) {
-        console.log(`Correo electrónico enviado a ${error}`);
+        console.log(`Error: ${error}`);
         this.errorHandleService.errorHandle(error, ErrorMethods.BadRequestException);
       }
     }
