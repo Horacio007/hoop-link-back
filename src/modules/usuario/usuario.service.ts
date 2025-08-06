@@ -18,6 +18,8 @@ import { EstatusService } from '../estatus/estatus.service';
 @Injectable()
 export class UsuarioService {
 
+  private isProd = process.env.NODE_ENV === 'production';
+
   constructor(
     private readonly _errorService:ErrorHandleService,
     @InjectRepository(Usuario)
@@ -70,7 +72,7 @@ export class UsuarioService {
 
       const token = await this._authService.getJwtToken(payload);
 
-      const url = `http://localhost:4200/registro/valida-correo?token=${token}`;
+      const url = `${this.isProd ? process.env.HOST_FRONT_PROD : process.env.HOST_FRONT_DEV}/registro/valida-correo?token=${token}`;
 
       const request:IRequestEmailBienvenida = {
         destinatario:nuevoUsuario.correo,
@@ -159,7 +161,7 @@ export class UsuarioService {
       user.fechaEdicion = new Date();
       await this._usuarioRepository.save(user);
 
-      const url = `http://localhost:4200/login`;
+      const url = `${this.isProd ? process.env.HOST_FRONT_PROD : process.env.HOST_FRONT_DEV}/login`;
       const request:IRequestEmailRecuperaContrasena = {
         destinatario: user.correo,
         usuario: user.nombre,
