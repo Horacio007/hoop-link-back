@@ -19,6 +19,8 @@ import { ErrorMethods } from '../../error/enum/common.error-handle.enum';
 @Injectable()
 export class MailService {
   
+    private isProd = process.env.NODE_ENV === 'production';
+
     constructor(
         private readonly mailerService: MailerService,
         private readonly configService: ConfigService,
@@ -27,7 +29,7 @@ export class MailService {
 
     private async getIndexGif(type: string): Promise<IFileGif> {
       try {
-        const ruta = resolve(__dirname, '../../assets/gif', type);
+        const ruta = this.isProd ? resolve(__dirname, '../assets/gif', type) : resolve(__dirname, '../../assets/gif', type);
         const archivos = await readdir(ruta); // ¡Aquí usas await correctamente!
         const randomIndex = Math.floor(Math.random() * archivos.length);
 
