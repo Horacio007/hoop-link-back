@@ -29,7 +29,7 @@ import { CloudinaryService } from './cloudinary/services/cloudinary.service';
         debug: true,  // Muestra mensajes de depuración SMTP
       },
       defaults: {
-        from: '"Soporte" <info@hooplink2.com>', // Cambia esto a tu email
+        from: `"Info" <info@hooplink2.com>`, // Cambia esto a tu email
       },
       template: {
         dir: join(__dirname, '../common/mail/templates'),
