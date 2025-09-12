@@ -28,6 +28,8 @@ export class AuthController {
       httpOnly: true,
       secure: isProd,
       sameSite: isProd ? 'none' : 'lax',
+      domain: '.hooplink2.com', // 👈 dominio del frontend
+      path: '/',
       maxAge: 1000 * 60 * 120
     });
   
@@ -35,6 +37,8 @@ export class AuthController {
       httpOnly: true,
       secure: isProd,
       sameSite: isProd ? 'none' : 'lax',
+      domain: '.hooplink2.com', // 👈 dominio del frontend
+      path: '/',
       maxAge: 1000 * 60 * 60 * 24 * 2
     });
 
