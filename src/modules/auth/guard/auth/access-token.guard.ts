@@ -9,7 +9,8 @@ export class AccessTokenGuard implements CanActivate {
 
   canActivate(context: ExecutionContext): boolean {
     const request = context.switchToHttp().getRequest<Request>();
-    const token = request.cookies?.accessToken;
+    const authHeader = request.headers['authorization'];
+    const token = authHeader?.split(' ')[1];
 
     if (!token) {
       throw new UnauthorizedException('No access token found');

@@ -9,12 +9,13 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { AccessTokenGuard } from './guard/auth/access-token.guard';
+import { RefreshTokens } from '../../entities/RefreshTokens';
 
 @Module({
   controllers: [AuthController],
   providers: [AuthService, JwtStrategy, AccessTokenGuard],
   imports: [
-    TypeOrmModule.forFeature([Usuario]),
+    TypeOrmModule.forFeature([Usuario, RefreshTokens]),
     PassportModule.register({defaultStrategy: 'jwt'}),
     JwtModule.registerAsync({
       imports: [

@@ -9,6 +9,7 @@ import {
 } from "typeorm";
 import { Ficheros } from "./Ficheros";
 import { InformacionPersonal } from "./InformacionPersonal";
+import { RefreshTokens } from "./RefreshTokens";
 import { Municipio } from "./Municipio";
 import { TipoUsuario } from "./TipoUsuario";
 import { Estatus } from "./Estatus";
@@ -84,6 +85,9 @@ export class Usuario {
     (informacionPersonal) => informacionPersonal.usuario
   )
   informacionPersonals: InformacionPersonal[];
+
+  @OneToMany(() => RefreshTokens, (refreshTokens) => refreshTokens.usuario)
+  refreshTokens: RefreshTokens[];
 
   @ManyToOne(() => Municipio, (municipio) => municipio.usuarios, {
     onDelete: "NO ACTION",
