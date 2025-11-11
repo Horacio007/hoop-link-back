@@ -49,7 +49,7 @@ export class InformacionPersonalService {
       let fotoPerfilResponse: UploadApiResponse;
       let ficheroFotoPerfil: Ficheros;
 
-      const existing = await this._informacionPersonalRepository.findOneBy({ usuarioId });
+      const existing = await infoRepo.findOneBy({ usuarioId });
 
       // primero guardo foto perfil
       if (fotoPerfil) {
@@ -71,8 +71,15 @@ export class InformacionPersonalService {
           existing.fotoPerfilId = ficheroFotoPerfil.ficheroId;
         }
         if (perfil.estatusBusquedaJugador?.id !== undefined) {
-          existing.estatusBusquedaJugador = undefined; 
-          existing.estatusBusquedaJugadorId = +perfil.estatusBusquedaJugador.id;
+          const estatusId = perfil.estatusBusquedaJugador.id;
+    
+          // Si el ID es una cadena vacía (''), asigna null. De lo contrario, convierte a número.
+          if (estatusId === '' || estatusId === null) {
+              existing.estatusBusquedaJugadorId = null;
+          } else {
+              existing.estatusBusquedaJugadorId = +estatusId;
+          }
+          existing.estatusBusquedaJugador = undefined;
         }
         existing.usuarioId = usuarioId;
         
@@ -95,13 +102,27 @@ export class InformacionPersonalService {
         }
 
         if (basketball.posicionJuegoUno?.id !== undefined) {
-          existing.posicionJuegoUno = undefined; 
-          existing.posicionJuegoUnoId = +basketball.posicionJuegoUno.id;
+          const posicionUnoId = basketball.posicionJuegoUno.id;
+    
+          // Si el ID es una cadena vacía (''), asigna null. De lo contrario, convierte a número.
+          if (posicionUnoId === '' || posicionUnoId === null) {
+              existing.posicionJuegoUnoId = null;
+          } else {
+              existing.posicionJuegoUnoId = +posicionUnoId;
+          }
+          existing.posicionJuegoUno = undefined;
         }
 
         if (basketball.posicionJuegoDos?.id !== undefined) {
-          existing.posicionJuegoDos = undefined; 
-          existing.posicionJuegoDosId = +basketball.posicionJuegoDos.id;
+          const posicionDosId = basketball.posicionJuegoDos.id;
+    
+          // Si el ID es una cadena vacía (''), asigna null. De lo contrario, convierte a número.
+          if (posicionDosId === '' || posicionDosId === null) {
+              existing.posicionJuegoDosId = null;
+          } else {
+              existing.posicionJuegoDosId = +posicionDosId;
+          }
+          existing.posicionJuegoDos = undefined;
         }
 
         // actualizo experiencia
@@ -159,13 +180,14 @@ export class InformacionPersonalService {
         await infoRepo.save(existing);
       } else {
         // nuevo
+        console.log('llegue al insert de informacion personal', ficheroFotoPerfil);
         const { perfil, fuerzaResistencia, basketball, experiencia, vision, redes } = dto;
         const newInfoPersonal = infoRepo.create({
           usuarioId,
-          fotoPerfilId: ficheroFotoPerfil.ficheroId ? ficheroFotoPerfil.ficheroId : null,
+          fotoPerfilId: ficheroFotoPerfil?.ficheroId ?? null,
           altura: perfil.altura,
           peso: perfil.peso,
-          estatusBusquedaJugadorId: +perfil.estatusBusquedaJugador.id,
+          estatusBusquedaJugadorId: perfil.estatusBusquedaJugador?.id ? +perfil.estatusBusquedaJugador.id : null,
           medidaMano: perfil.medidaMano,
           largoBrazo: perfil.largoBrazo,
           quienEres: perfil.quienEres,
@@ -182,8 +204,8 @@ export class InformacionPersonalService {
           tiempoDistanciaTresKm: fuerzaResistencia.tiempoDistanciaTresKm ,
           anioEmpezoAJugar: basketball.anioEmpezoAJugar ,
           manoJuego: basketball.manoJuego ,
-          posicionJuegoUnoId: +basketball.posicionJuegoUno.id ,
-          posicionJuegoDosId: +basketball.posicionJuegoDos.id ,
+          posicionJuegoUnoId: basketball.posicionJuegoUno?.id ? +basketball.posicionJuegoUno.id : null ,
+          posicionJuegoDosId: basketball.posicionJuegoDos?.id ? +basketball.posicionJuegoDos.id : null ,
           clavas: basketball.clavas ,
           puntosPorJuego: basketball.puntosPorJuego ,
           asistenciasPorJuego: basketball.asistenciasPorJuego ,
@@ -297,7 +319,15 @@ export class InformacionPersonalService {
       });
 
       // si no existe es primera ves y lo saca
-      if (!infoPersonal) this._errorService.setError('Erros inesperado favor de contactar con soporte');
+      if (!infoPersonal) {
+        const response:IResponse<undefined> = {
+          statusCode: HttpStatus.OK,
+          mensaje: 'Usuario sin información personal.',
+          data: undefined
+        }
+        
+        return response;
+      }
       
       // obtengo el estatus del perfil
       const estatusBusquedaJugador = await this._catalogoService.getInfoCatalogo(

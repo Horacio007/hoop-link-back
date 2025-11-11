@@ -5,6 +5,7 @@ import { ValidacionesDTOs } from "../../../common/validations/validation.functio
 
 export class VisionDto {
 
+    @IsOptional()
     @Transform(({ value }) => (typeof value === 'string' ? value.trim() : value))
     @IsString({
         message: ValidacionesDTOs({campo:'Objetivos'}, ValidationEnumsDTOs.isString)
@@ -14,6 +15,7 @@ export class VisionDto {
     })
     objetivos: string;
 
+    @IsOptional()
     @Transform(({ value }) => (typeof value === 'string' ? value.trim() : value))
     @IsString({
         message: ValidacionesDTOs({campo:'Valores'}, ValidationEnumsDTOs.isString)

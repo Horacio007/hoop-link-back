@@ -20,14 +20,18 @@ export class RefreshTokens {
   @Column("varchar", { name: "token", length: 600 })
   token: string;
 
-  @Column("timestamp", {
-    name: "expires_at",
-    default: () => "CURRENT_TIMESTAMP",
-  })
+  @Column("timestamp", { name: "expires_at", default: () => "'now()'" })
   expiresAt: Date;
 
   @Column("tinyint", { name: "revoked", width: 1, default: () => "'0'" })
   revoked: boolean;
+
+  @Column("timestamp", {
+    name: "created_at",
+    nullable: true,
+    default: () => "'now()'",
+  })
+  createdAt: Date | null;
 
   @ManyToOne(() => Usuario, (usuario) => usuario.refreshTokens, {
     onDelete: "NO ACTION",
