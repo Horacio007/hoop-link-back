@@ -1,9 +1,10 @@
-import { IsString, MinLength } from "class-validator";
+import { IsString, MinLength, IsOptional } from 'class-validator';
 import { Transform, Type } from "class-transformer";
 import { ValidationEnumsDTOs } from "../../../common/enums/validations/validation-dto.enum";
 import { ValidacionesDTOs } from "../../../common/validations/validation.function";
 
 export class HistorialEntrenadoresDto {
+    @IsOptional()
     @Transform(({ value }) => (typeof value === 'string' ? value.trim() : value))
     @IsString({
         message: ValidacionesDTOs({campo:'Nombre del club'}, ValidationEnumsDTOs.isString)

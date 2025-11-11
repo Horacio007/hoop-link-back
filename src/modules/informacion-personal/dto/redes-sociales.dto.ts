@@ -1,9 +1,10 @@
-import { IsString, MinLength } from "class-validator";
+import { IsString, MinLength, IsOptional } from 'class-validator';
 import { Transform, Type } from "class-transformer";
 import { ValidationEnumsDTOs } from "../../../common/enums/validations/validation-dto.enum";
 import { ValidacionesDTOs } from "../../../common/validations/validation.function";
 
 export class RedesSocialesDto {
+    @IsOptional()
     @Transform(({ value }) => (typeof value === 'string' ? value.trim() : value))
     @IsString({
         message: ValidacionesDTOs({campo:'Facebook'}, ValidationEnumsDTOs.isString)
@@ -13,6 +14,7 @@ export class RedesSocialesDto {
     })
     facebook: string;
 
+    @IsOptional()
     @Transform(({ value }) => (typeof value === 'string' ? value.trim() : value))
     @IsString({
         message: ValidacionesDTOs({campo:'Instagram'}, ValidationEnumsDTOs.isString)
@@ -22,6 +24,7 @@ export class RedesSocialesDto {
     })
     instagram: string;
 
+    @IsOptional()
     @Transform(({ value }) => (typeof value === 'string' ? value.trim() : value))
     @IsString({
         message: ValidacionesDTOs({campo:'TikTok'}, ValidationEnumsDTOs.isString)
@@ -31,6 +34,7 @@ export class RedesSocialesDto {
     })
     tiktok: string;
 
+    @IsOptional()
     @Transform(({ value }) => (typeof value === 'string' ? value.trim() : value))
     @IsString({
         message: ValidacionesDTOs({campo:'Youtube'}, ValidationEnumsDTOs.isString)

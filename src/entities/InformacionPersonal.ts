@@ -40,29 +40,37 @@ export class InformacionPersonal {
   @Column("int", { name: "foto_perfil_id", nullable: true })
   fotoPerfilId: number | null;
 
-  @Column("float", { name: "altura", precision: 12 })
-  altura: number;
+  @Column("float", { name: "altura", nullable: true, precision: 12 })
+  altura: number | null;
 
-  @Column("float", { name: "peso", precision: 12 })
-  peso: number;
+  @Column("float", { name: "peso", nullable: true, precision: 12 })
+  peso: number | null;
 
-  @Column("int", { name: "estatus_busqueda_jugador_id" })
-  estatusBusquedaJugadorId: number;
+  @Column("int", { name: "estatus_busqueda_jugador_id", nullable: true })
+  estatusBusquedaJugadorId: number | null;
 
-  @Column("float", { name: "medida_mano", precision: 12 })
-  medidaMano: number;
+  @Column("float", { name: "medida_mano", nullable: true, precision: 12 })
+  medidaMano: number | null;
 
-  @Column("float", { name: "largo_brazo", precision: 12 })
-  largoBrazo: number;
+  @Column("float", { name: "largo_brazo", nullable: true, precision: 12 })
+  largoBrazo: number | null;
 
-  @Column("varchar", { name: "quien_eres", length: 500 })
-  quienEres: string;
+  @Column("varchar", { name: "quien_eres", nullable: true, length: 500 })
+  quienEres: string | null;
 
-  @Column("float", { name: "altura_salto_vertical", precision: 12 })
-  alturaSaltoVertical: number;
+  @Column("float", {
+    name: "altura_salto_vertical",
+    nullable: true,
+    precision: 12,
+  })
+  alturaSaltoVertical: number | null;
 
-  @Column("float", { name: "distancia_salto_horizontal", precision: 12 })
-  distanciaSaltoHorizontal: number;
+  @Column("float", {
+    name: "distancia_salto_horizontal",
+    nullable: true,
+    precision: 12,
+  })
+  distanciaSaltoHorizontal: number | null;
 
   @Column("float", { name: "peso_bench_press", nullable: true, precision: 12 })
   pesoBenchPress: number | null;
@@ -132,11 +140,11 @@ export class InformacionPersonal {
   @Column("bit", { name: "mano_juego", default: () => "'0'" })
   manoJuego: boolean;
 
-  @Column("int", { name: "posicion_juego_uno_id" })
-  posicionJuegoUnoId: number;
+  @Column("int", { name: "posicion_juego_uno_id", nullable: true })
+  posicionJuegoUnoId: number | null;
 
-  @Column("int", { name: "posicion_juego_dos_id" })
-  posicionJuegoDosId: number;
+  @Column("int", { name: "posicion_juego_dos_id", nullable: true })
+  posicionJuegoDosId: number | null;
 
   @Column("bit", { name: "clavas", default: () => "'0'" })
   clavas: boolean;

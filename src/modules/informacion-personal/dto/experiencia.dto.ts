@@ -7,6 +7,7 @@ import { HistorialEquiposDto } from "./historial-equipos.dto";
 import { LogrosClaveDto } from "./logros-clave.dto";
 
 export class ExperienciaDto {
+    @IsOptional()
     @IsNotEmpty({message: ValidacionesDTOs({campo: 'Desde cuando juegas'}, ValidationEnumsDTOs.isNotEmpty)})
     @Type(() => Date)  // ✅ Convierte el string recibido en una instancia de Date
     @IsDate({message: ValidacionesDTOs({campo: 'Desde cuando juegas'}, ValidationEnumsDTOs.isDate)})
@@ -24,7 +25,7 @@ export class ExperienciaDto {
     })
     horasEntrenamientoSemana?: number;
 
-     @IsOptional()
+    @IsOptional()
     @IsNumber({},{
         message: ValidacionesDTOs({campo: 'Horas de gimnasio por semana'}, ValidationEnumsDTOs.max)
     })
@@ -39,6 +40,7 @@ export class ExperienciaDto {
     @IsBoolean({message: ValidacionesDTOs({campo: 'Perteneces a un club'}, ValidationEnumsDTOs.isBoolean)})
     pertenecesClub: boolean;
 
+    @IsOptional()
     @Transform(({ value }) => (typeof value === 'string' ? value.trim() : value))
     @IsString({
         message: ValidacionesDTOs({campo:'Nombre del club'}, ValidationEnumsDTOs.isString)

@@ -17,6 +17,7 @@ export class PerfilDto {
     @IsNumber()
     fotoPerfilId?: number; // nombre del archivo o URL, si quieres validarla
     
+    @IsOptional()
     @IsNumber({},{
         message: ValidacionesDTOs({campo: 'Altura'}, ValidationEnumsDTOs.max)
     })
@@ -28,6 +29,7 @@ export class PerfilDto {
     })
     altura: number;
 
+    @IsOptional()
     @IsNumber({},{
         message: ValidacionesDTOs({campo: 'Peso'}, ValidationEnumsDTOs.max)
     })
@@ -39,11 +41,13 @@ export class PerfilDto {
     })
     peso: number;
     
+    @IsOptional()
     @IsNotEmpty({message: ValidacionesDTOs({campo: 'Busqueda Jugador'}, ValidationEnumsDTOs.isNotEmpty)})
     @ValidateNested()
     @Type(() => CatalagoDTO)
     estatusBusquedaJugador: CatalagoDTO;
     
+    @IsOptional()
     @IsNumber({},{
         message: ValidacionesDTOs({campo: 'Medida de mano'}, ValidationEnumsDTOs.max)
     })
@@ -55,6 +59,7 @@ export class PerfilDto {
     })
     medidaMano: number;
     
+    @IsOptional()
     @IsNumber({},{
         message: ValidacionesDTOs({campo: 'Largo del brazo'}, ValidationEnumsDTOs.max)
     })
@@ -66,6 +71,7 @@ export class PerfilDto {
     })
     largoBrazo: number;
     
+    @IsOptional()
     @Transform(({ value }) => (typeof value === 'string' ? value.trim() : value))
     @IsString({
         message: ValidacionesDTOs({campo:'Quien eres'}, ValidationEnumsDTOs.isString)

@@ -43,6 +43,7 @@ async function bootstrap() {
 
   app.setGlobalPrefix('api');
 
+  // await app.listen(process.env.PORT || 3001, '0.0.0.0'); // <====== local
   await app.listen(process.env.PORT || 3000, '0.0.0.0');
   logger.log(`App running on port ${process.env.PORT_LAUNCH}`);
   logger.log(`App running on port ${process.env.PORT}`);
