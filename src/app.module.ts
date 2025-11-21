@@ -22,6 +22,8 @@ import { PosicionJuego } from './entities/PosicionJuego';
 import { HistorialEventosInformacionPersonalModule } from './modules/historial-eventos-informacion-personal/historial-equipos-informacion-personal.module';
 import { HistorialEntrenadoresInformacionPersonalModule } from './modules/historial-entrenadores-informacion-personal/historial-entrenadores-informacion-personal.module';
 import { LogrosClaveInformacionPersonalModule } from './modules/logros-clave-informacion-personal/logros-clave-informacion-personal.module';
+import { AuditLogModule } from './modules/audit-log/audit-log.module';
+import { AuditLog } from './entities/AuditLog';
 
 
 @Module({
@@ -35,9 +37,9 @@ import { LogrosClaveInformacionPersonalModule } from './modules/logros-clave-inf
       username: process.env.DATABASE_USER,
       password: process.env.DATABASE_PASSWORD,
       // esto en teoria es para usar en azure <------------------
-      ssl: {
-          rejectUnauthorized: true,
-      },
+      // ssl: {
+      //     rejectUnauthorized: true,
+      // },
       autoLoadEntities: true,
       synchronize: true,
       entities: [
@@ -52,7 +54,8 @@ import { LogrosClaveInformacionPersonalModule } from './modules/logros-clave-inf
         EstatusBusquedaJugador,
         Ficheros,
         InformacionPersonal,
-        PosicionJuego
+        PosicionJuego,
+        AuditLog
       ]
     }),
     AuthModule,
@@ -64,6 +67,7 @@ import { LogrosClaveInformacionPersonalModule } from './modules/logros-clave-inf
     HistorialEventosInformacionPersonalModule,
     HistorialEntrenadoresInformacionPersonalModule,
     LogrosClaveInformacionPersonalModule,
+    AuditLogModule,
   ],
   controllers: [],
   providers: [],
