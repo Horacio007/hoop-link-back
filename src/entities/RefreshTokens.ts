@@ -20,7 +20,10 @@ export class RefreshTokens {
   @Column("varchar", { name: "token", length: 600 })
   token: string;
 
-  @Column("timestamp", { name: "expires_at", default: () => "'now()'" })
+  @Column("timestamp", {
+    name: "expires_at",
+    default: () => "CURRENT_TIMESTAMP",
+  })
   expiresAt: Date;
 
   @Column("tinyint", { name: "revoked", width: 1, default: () => "'0'" })
@@ -29,7 +32,7 @@ export class RefreshTokens {
   @Column("timestamp", {
     name: "created_at",
     nullable: true,
-    default: () => "'now()'",
+    default: () => "CURRENT_TIMESTAMP",
   })
   createdAt: Date | null;
 

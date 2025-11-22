@@ -16,6 +16,16 @@ export class PerfilDto {
     @IsOptional()
     @IsNumber()
     fotoPerfilId?: number; // nombre del archivo o URL, si quieres validarla
+
+    @IsOptional()
+    @Transform(({ value }) => (typeof value === 'string' ? value.trim() : value))
+    @IsString({
+        message: ValidacionesDTOs({campo:'Alias'}, ValidationEnumsDTOs.isString)
+    })
+    @MinLength(1,{
+        message: ValidacionesDTOs({campo:'Alias', minLength: 1}, ValidationEnumsDTOs.minLength),
+    })
+    alias: string;
     
     @IsOptional()
     @IsNumber({},{

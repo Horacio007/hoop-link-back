@@ -7,6 +7,7 @@ import {
   OneToMany,
   PrimaryGeneratedColumn,
 } from "typeorm";
+import { AuditLog } from "./AuditLog";
 import { Ficheros } from "./Ficheros";
 import { InformacionPersonal } from "./InformacionPersonal";
 import { RefreshTokens } from "./RefreshTokens";
@@ -76,6 +77,9 @@ export class Usuario {
 
   @Column("int", { name: "usuario_edicion", nullable: true })
   usuarioEdicion: number | null;
+
+  @OneToMany(() => AuditLog, (auditLog) => auditLog.usuario)
+  auditLogs: AuditLog[];
 
   @OneToMany(() => Ficheros, (ficheros) => ficheros.usuario)
   ficheros: Ficheros[];

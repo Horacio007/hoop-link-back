@@ -40,6 +40,9 @@ export class InformacionPersonal {
   @Column("int", { name: "foto_perfil_id", nullable: true })
   fotoPerfilId: number | null;
 
+  @Column("varchar", { name: "alias", nullable: true, length: 50 })
+  alias: string | null;
+
   @Column("float", { name: "altura", nullable: true, precision: 12 })
   altura: number | null;
 

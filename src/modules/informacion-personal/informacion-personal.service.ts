@@ -19,6 +19,7 @@ import { LogrosClaveInformacionPersonalService } from '../logros-clave-informaci
 import { v4 as uuidv4 } from 'uuid'; // Asegúrate de instalar: npm install uuid
 import { RoutesPathsClodudinary } from '../../common/cloudinary/constants/route-paths.const';
 import { IVideoInformacionPersonalResponse } from '../../common/interfaces/informacion-personal/videos/videos-response.interface';
+import { AuditLogService } from '../audit-log/audit-log.service';
 
 @Injectable()
 export class InformacionPersonalService {
@@ -34,6 +35,7 @@ export class InformacionPersonalService {
     private readonly _historialEquipossService: HistorialEquiposInformacionPersonalService,
     private readonly _historialEntrenadoresService: HistorialEntrenadoresInformacionPersonalService,
     private readonly _logrosClaveService: LogrosClaveInformacionPersonalService,
+    private readonly _auditLogService: AuditLogService,
   ) { }
 //#endregion
 
@@ -50,6 +52,8 @@ export class InformacionPersonalService {
       let ficheroFotoPerfil: Ficheros;
 
       const existing = await infoRepo.findOneBy({ usuarioId });
+
+      const datosAntes = existing ? { ...existing } : null;
 
       // primero guardo foto perfil
       if (fotoPerfil) {
@@ -178,6 +182,16 @@ export class InformacionPersonalService {
         
         
         await infoRepo.save(existing);
+
+        await this._auditLogService.update(queryRunner, {
+          tableName: "informacion_personal",
+          id: existing.informacionPersonalId,
+          before: datosAntes,
+          after: existing,
+          user: usuarioId,
+          ip: undefined
+        });
+
       } else {
         // nuevo
         console.log('llegue al insert de informacion personal', ficheroFotoPerfil);
@@ -185,6 +199,7 @@ export class InformacionPersonalService {
         const newInfoPersonal = infoRepo.create({
           usuarioId,
           fotoPerfilId: ficheroFotoPerfil?.ficheroId ?? null,
+          alias: perfil.alias,
           altura: perfil.altura,
           peso: perfil.peso,
           estatusBusquedaJugadorId: perfil.estatusBusquedaJugador?.id ? +perfil.estatusBusquedaJugador.id : null,
@@ -244,6 +259,15 @@ export class InformacionPersonalService {
         if (experiencia.logrosClave) {
           await this._logrosClaveService.insert(savedInfo.informacionPersonalId, experiencia.logrosClave, queryRunner.manager);
         }
+
+        // Insert audit log
+        await this._auditLogService.insert(queryRunner, {
+          tableName: "informacion_personal",
+          id: savedInfo.informacionPersonalId,
+          after: savedInfo,
+          user: usuarioId,
+          ip: undefined
+        });
       }
 
       await queryRunner.commitTransaction();
@@ -270,6 +294,7 @@ export class InformacionPersonalService {
         select: {
           informacionPersonalId: true,
           fotoPerfilId: true,
+          alias: true,
           altura: true,
           peso: true,
           estatusBusquedaJugadorId: true,
