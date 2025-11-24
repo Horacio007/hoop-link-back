@@ -37,9 +37,9 @@ import { AuditLog } from './entities/AuditLog';
       username: process.env.DATABASE_USER,
       password: process.env.DATABASE_PASSWORD,
       // esto en teoria es para usar en azure <------------------
-      // ssl: {
-      //     rejectUnauthorized: true,
-      // },
+      ssl: {
+          rejectUnauthorized: true,
+      },
       autoLoadEntities: true,
       synchronize: true,
       entities: [
