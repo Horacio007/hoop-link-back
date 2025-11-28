@@ -24,6 +24,7 @@ import { HistorialEntrenadoresInformacionPersonalModule } from './modules/histor
 import { LogrosClaveInformacionPersonalModule } from './modules/logros-clave-informacion-personal/logros-clave-informacion-personal.module';
 import { AuditLogModule } from './modules/audit-log/audit-log.module';
 import { AuditLog } from './entities/AuditLog';
+import { CoachModule } from './modules/coach/coach.module';
 
 
 @Module({
@@ -37,9 +38,9 @@ import { AuditLog } from './entities/AuditLog';
       username: process.env.DATABASE_USER,
       password: process.env.DATABASE_PASSWORD,
       // esto en teoria es para usar en azure <------------------
-      ssl: {
-          rejectUnauthorized: true,
-      },
+      // ssl: {
+      //     rejectUnauthorized: true,
+      // },
       autoLoadEntities: true,
       synchronize: true,
       entities: [
@@ -68,6 +69,7 @@ import { AuditLog } from './entities/AuditLog';
     HistorialEntrenadoresInformacionPersonalModule,
     LogrosClaveInformacionPersonalModule,
     AuditLogModule,
+    CoachModule,
   ],
   controllers: [],
   providers: [],
