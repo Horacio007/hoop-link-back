@@ -25,6 +25,7 @@ import { LogrosClaveInformacionPersonalModule } from './modules/logros-clave-inf
 import { AuditLogModule } from './modules/audit-log/audit-log.module';
 import { AuditLog } from './entities/AuditLog';
 import { CoachModule } from './modules/coach/coach.module';
+import { VistaJugadorPerfilModule } from './modules/vista-jugador-perfil/vista-jugador-perfil.module';
 
 
 @Module({
@@ -70,6 +71,7 @@ import { CoachModule } from './modules/coach/coach.module';
     LogrosClaveInformacionPersonalModule,
     AuditLogModule,
     CoachModule,
+    VistaJugadorPerfilModule,
   ],
   controllers: [],
   providers: [],

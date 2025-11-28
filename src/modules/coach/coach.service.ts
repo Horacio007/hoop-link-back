@@ -10,6 +10,8 @@ import { CatalogoService } from '../catalogo/catalogo.service';
 import { IResponse } from '../../common/interfaces';
 import { IInformacionPersonal } from '../../common/interfaces/informacion-personal/informacion-personal.interface';
 import { IListadoJugadores } from './interfaces/listado-jugadores.interface';
+import { VistaJugadorPerfilService } from '../vista-jugador-perfil/vista-jugador-perfil.service';
+import { InformacionPersonalService } from '../informacion-personal/informacion-personal.service';
 
 @Injectable()
 export class CoachService {
@@ -21,6 +23,8 @@ export class CoachService {
     private readonly _errorService: ErrorHandleService,
     private readonly _cloudinaryService: CloudinaryService,
     private readonly _catalogoService: CatalogoService,
+    private readonly _vistaJugadorPerfilService: VistaJugadorPerfilService,
+    private readonly _informacionPersonalService: InformacionPersonalService
   ) { }
 //#endregion
 
@@ -154,6 +158,20 @@ export class CoachService {
       this._errorService.errorHandle(error, ErrorMethods.BadRequestException);
     }
     return `This action returns all coach`;
+  }
+
+  async saveVistaPerfil(usuarioId: number, informacionPersonalId: number) {
+    try {
+      const existe: boolean = await this._vistaJugadorPerfilService.existeVista(usuarioId, informacionPersonalId);
+
+      if (!existe) {
+        const jugadorId: number = await this._informacionPersonalService.getUsuarioIdByInformacionPersonalId(usuarioId);
+        await this._vistaJugadorPerfilService.insertaVista(usuarioId, jugadorId);
+      }
+
+    } catch (error) {
+      this._errorService.errorHandle(error, ErrorMethods.BadRequestException);
+    }
   }
 
 //#endregion

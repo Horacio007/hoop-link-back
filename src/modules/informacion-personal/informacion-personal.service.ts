@@ -633,6 +633,21 @@ export class InformacionPersonalService {
       await queryRunner.release();
     }
   }
+
+  async getUsuarioIdByInformacionPersonalId(informacionPersonalId: number) {
+    try {
+      const usuarioId = await this._informacionPersonalRepository.findOne({
+        where: {informacionPersonalId},
+        select: {
+          usuarioId: true
+        }
+      });
+
+      return usuarioId.usuarioId;
+    } catch (error) {
+      this._errorService.errorHandle(error, ErrorMethods.BadRequestException);
+    }
+  }
 //#endregion
 
 }

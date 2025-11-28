@@ -7,6 +7,8 @@ import { FicherosModule } from '../ficheros/ficheros.module';
 import { CatalogoModule } from '../catalogo/catalogo.module';
 import { CommonModule } from '../../common/common.module';
 import { AuthModule } from '../auth/auth.module';
+import { VistaJugadorPerfilModule } from '../vista-jugador-perfil/vista-jugador-perfil.module';
+import { InformacionPersonalModule } from '../informacion-personal/informacion-personal.module';
 
 @Module({
   controllers: [CoachController],
@@ -18,7 +20,9 @@ import { AuthModule } from '../auth/auth.module';
     FicherosModule,
     CatalogoModule,
     CommonModule,
-    AuthModule
+    AuthModule,
+    VistaJugadorPerfilModule,
+    InformacionPersonalModule
   ]
 })
 export class CoachModule {}

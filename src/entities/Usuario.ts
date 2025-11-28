@@ -14,6 +14,7 @@ import { RefreshTokens } from "./RefreshTokens";
 import { Municipio } from "./Municipio";
 import { TipoUsuario } from "./TipoUsuario";
 import { Estatus } from "./Estatus";
+import { VistaJugadorPerfil } from "./VistaJugadorPerfil";
 
 @Index("correo", ["correo"], { unique: true })
 @Index("FK_estatus_usuario", ["estatusId"], {})
@@ -115,4 +116,16 @@ export class Usuario {
   })
   @JoinColumn([{ name: "estatus_id", referencedColumnName: "estatusId" }])
   estatus: Estatus;
+
+  @OneToMany(
+    () => VistaJugadorPerfil,
+    (vistaJugadorPerfil) => vistaJugadorPerfil.entrenador
+  )
+  vistaJugadorPerfils: VistaJugadorPerfil[];
+
+  @OneToMany(
+    () => VistaJugadorPerfil,
+    (vistaJugadorPerfil) => vistaJugadorPerfil.jugador
+  )
+  vistaJugadorPerfils2: VistaJugadorPerfil[];
 }

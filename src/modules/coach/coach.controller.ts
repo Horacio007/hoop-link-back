@@ -3,6 +3,8 @@ import { CoachService } from './coach.service';
 import { CreateCoachDto } from './dto/create-coach.dto';
 import { UpdateCoachDto } from './dto/update-coach.dto';
 import { AccessTokenGuard } from '../auth/guard/auth/access-token.guard';
+import { User } from '../../common/decorators/user.decorator';
+import { JwtPayload } from '../auth/interfaces/jwt-payload.interface';
 
 @Controller('coach')
 export class CoachController {
@@ -12,5 +14,14 @@ export class CoachController {
   @UseGuards(AccessTokenGuard)
   async findAll() {
     return await this.coachService.findAll();
+  }
+
+  @Post('save-vista-perfil')
+  @UseGuards(AccessTokenGuard)
+  async saveVistaPerfil(
+    @User() user: JwtPayload,
+    @Body() informacionPersonalId: number
+  ) {
+    return await this.coachService.saveVistaPerfil(+user.id, informacionPersonalId);
   }
 }
