@@ -16,11 +16,11 @@ export class CoachController {
     return await this.coachService.findAll();
   }
 
-  @Post('save-vista-perfil')
+  @Post('save-vista-perfil/:id')
   @UseGuards(AccessTokenGuard)
   async saveVistaPerfil(
     @User() user: JwtPayload,
-    @Body() informacionPersonalId: number
+    @Param('id') informacionPersonalId: number
   ) {
     return await this.coachService.saveVistaPerfil(+user.id, informacionPersonalId);
   }

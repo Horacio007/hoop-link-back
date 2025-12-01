@@ -165,7 +165,7 @@ export class CoachService {
       const existe: boolean = await this._vistaJugadorPerfilService.existeVista(usuarioId, informacionPersonalId);
 
       if (!existe) {
-        const jugadorId: number = await this._informacionPersonalService.getUsuarioIdByInformacionPersonalId(usuarioId);
+        const jugadorId: number = await this._informacionPersonalService.getUsuarioIdByInformacionPersonalId(informacionPersonalId);
         await this._vistaJugadorPerfilService.insertaVista(usuarioId, jugadorId);
       }
 

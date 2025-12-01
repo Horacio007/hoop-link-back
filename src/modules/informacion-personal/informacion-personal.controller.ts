@@ -56,6 +56,13 @@ export class InformacionPersonalController {
     return await this._informacionPersonalService.getInformacionPersonal(+user.id);
   }
 
+  @Get(':id')
+  @UseGuards(AccessTokenGuard)
+  async getInformacionPersonalById( @Param('id') id?: number) {
+    console.log('aaqui va le di',id)
+    return await this._informacionPersonalService.getInformacionPersonalById(+id);
+  }
+
   @Post('upload-video/:tipo/:id?')
   @UseInterceptors(FileInterceptor('file'))
   @UseGuards(AccessTokenGuard)

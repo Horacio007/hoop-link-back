@@ -37,7 +37,8 @@ export class VistaJugadorPerfilService {
     try {
       await this._vistaJugadorPerfilRepository.save({
         entrenadorId: coachId,
-        jugadorId
+        jugadorId,
+        usuarioCreacion: coachId.toString()
       }); // ← no olvides guardar
     } catch (error) {
       this._errorService.errorHandle(error, ErrorMethods.BadRequestException);
