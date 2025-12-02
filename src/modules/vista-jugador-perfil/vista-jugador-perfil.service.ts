@@ -45,6 +45,21 @@ export class VistaJugadorPerfilService {
     }
   }
 
+  async getTotalVistasPerfil(jugadorId: number) {
+    try {
+      console.log('JugadorId recibido:', jugadorId, typeof jugadorId);
+
+      const total = await this._vistaJugadorPerfilRepository.find({
+        where: [
+          {jugadorId: jugadorId}
+        ]
+      });
+
+      return total.length;
+    } catch (error) {
+      this._errorService.errorHandle(error, ErrorMethods.BadRequestException);
+    }
+  }
 //#endregion
 
 }

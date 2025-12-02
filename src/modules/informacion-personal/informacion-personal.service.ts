@@ -9,7 +9,7 @@ import { CloudinaryService } from '../../common/cloudinary/services/cloudinary.s
 import { UploadApiResponse } from 'cloudinary';
 import { Ficheros } from '../../entities/Ficheros';
 import { FicherosService } from '../ficheros/ficheros.service';
-import { info } from 'console';
+import { info, error } from 'console';
 import { IResponse } from '../../common/interfaces';
 import { IInformacionPersonal } from '../../common/interfaces/informacion-personal/informacion-personal.interface';
 import { CatalogoService } from '../catalogo/catalogo.service';
@@ -20,6 +20,7 @@ import { v4 as uuidv4 } from 'uuid'; // Asegúrate de instalar: npm install uuid
 import { RoutesPathsClodudinary } from '../../common/cloudinary/constants/route-paths.const';
 import { IVideoInformacionPersonalResponse } from '../../common/interfaces/informacion-personal/videos/videos-response.interface';
 import { AuditLogService } from '../audit-log/audit-log.service';
+import { VistaJugadorPerfilService } from '../vista-jugador-perfil/vista-jugador-perfil.service';
 
 @Injectable()
 export class InformacionPersonalService {
@@ -36,6 +37,7 @@ export class InformacionPersonalService {
     private readonly _historialEntrenadoresService: HistorialEntrenadoresInformacionPersonalService,
     private readonly _logrosClaveService: LogrosClaveInformacionPersonalService,
     private readonly _auditLogService: AuditLogService,
+    private readonly _vistaJugadorPerfilService: VistaJugadorPerfilService,
   ) { }
 //#endregion
 
@@ -831,6 +833,24 @@ export class InformacionPersonalService {
       });
 
       return usuarioId.usuarioId;
+    } catch (error) {
+      this._errorService.errorHandle(error, ErrorMethods.BadRequestException);
+    }
+  }
+
+  async getTotalVistasPerfil(usuarioId: number) {
+    try {
+console.log('JugadorId recibido:', usuarioId, typeof usuarioId);
+
+      const total: number = await this._vistaJugadorPerfilService.getTotalVistasPerfil(usuarioId);
+
+      const response:IResponse<number> = {
+        statusCode: HttpStatus.OK,
+        mensaje: 'Información obtenida.',
+        data: total
+      }
+
+      return response;
     } catch (error) {
       this._errorService.errorHandle(error, ErrorMethods.BadRequestException);
     }

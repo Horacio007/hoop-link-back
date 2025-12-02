@@ -11,6 +11,7 @@ import { HistorialEntrenadoresInformacionPersonalModule } from '../historial-ent
 import { HistorialEventosInformacionPersonalModule } from '../historial-eventos-informacion-personal/historial-equipos-informacion-personal.module';
 import { LogrosClaveInformacionPersonalModule } from '../logros-clave-informacion-personal/logros-clave-informacion-personal.module';
 import { AuditLogModule } from '../audit-log/audit-log.module';
+import { VistaJugadorPerfilModule } from '../vista-jugador-perfil/vista-jugador-perfil.module';
 
 @Module({
   controllers: [InformacionPersonalController],
@@ -26,7 +27,8 @@ import { AuditLogModule } from '../audit-log/audit-log.module';
     HistorialEntrenadoresInformacionPersonalModule,
     HistorialEventosInformacionPersonalModule,
     LogrosClaveInformacionPersonalModule,
-    AuditLogModule
+    AuditLogModule,
+    VistaJugadorPerfilModule
   ],
   exports: [InformacionPersonalService]
 })
