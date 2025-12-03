@@ -26,7 +26,9 @@ import { AuditLogModule } from './modules/audit-log/audit-log.module';
 import { AuditLog } from './entities/AuditLog';
 import { CoachModule } from './modules/coach/coach.module';
 import { VistaJugadorPerfilModule } from './modules/vista-jugador-perfil/vista-jugador-perfil.module';
-
+import { ComentariosPerfilJugadorModule } from './modules/comentarios-perfil-jugador/comentarios-perfil-jugador.module';
+import { VistaJugadorPerfil } from './entities/VistaJugadorPerfil';
+import { ComentariosPerfilJugador } from './entities/ComentariosPerfilJugador';
 
 @Module({
   imports: [
@@ -57,7 +59,9 @@ import { VistaJugadorPerfilModule } from './modules/vista-jugador-perfil/vista-j
         Ficheros,
         InformacionPersonal,
         PosicionJuego,
-        AuditLog
+        AuditLog,
+        VistaJugadorPerfil,
+        ComentariosPerfilJugador
       ]
     }),
     AuthModule,
@@ -72,6 +76,7 @@ import { VistaJugadorPerfilModule } from './modules/vista-jugador-perfil/vista-j
     AuditLogModule,
     CoachModule,
     VistaJugadorPerfilModule,
+    ComentariosPerfilJugadorModule,
   ],
   controllers: [],
   providers: [],

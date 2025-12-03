@@ -8,6 +8,7 @@ import {
   PrimaryGeneratedColumn,
 } from "typeorm";
 import { AuditLog } from "./AuditLog";
+import { ComentariosPerfilJugador } from "./ComentariosPerfilJugador";
 import { Ficheros } from "./Ficheros";
 import { InformacionPersonal } from "./InformacionPersonal";
 import { RefreshTokens } from "./RefreshTokens";
@@ -81,6 +82,19 @@ export class Usuario {
 
   @OneToMany(() => AuditLog, (auditLog) => auditLog.usuario)
   auditLogs: AuditLog[];
+
+  @OneToMany(
+    () => ComentariosPerfilJugador,
+    (comentariosPerfilJugador) => comentariosPerfilJugador.autorComentario
+  )
+  comentariosPerfilJugadors: ComentariosPerfilJugador[];
+
+  @OneToMany(
+    () => ComentariosPerfilJugador,
+    (comentariosPerfilJugador) =>
+      comentariosPerfilJugador.perfilComentadoJugador
+  )
+  comentariosPerfilJugadors2: ComentariosPerfilJugador[];
 
   @OneToMany(() => Ficheros, (ficheros) => ficheros.usuario)
   ficheros: Ficheros[];

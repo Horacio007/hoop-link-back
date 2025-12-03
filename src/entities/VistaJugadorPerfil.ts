@@ -21,7 +21,10 @@ export class VistaJugadorPerfil {
   @Column("int", { name: "jugador_id" })
   jugadorId: number;
 
-  @Column("datetime", { name: "fecha_creacion", default: () => "'now()'" })
+  @Column("datetime", {
+    name: "fecha_creacion",
+    default: () => "CURRENT_TIMESTAMP",
+  })
   fechaCreacion: Date;
 
   @Column("varchar", { name: "usuario_creacion", length: 50 })

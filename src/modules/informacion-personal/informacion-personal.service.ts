@@ -838,9 +838,23 @@ export class InformacionPersonalService {
     }
   }
 
+  async getInformacionPersonalIdByUsuarioId(usuarioId: number) {
+    try {
+      const informacionPersonalId = await this._informacionPersonalRepository.findOne({
+        where: {usuarioId},
+        select: {
+          informacionPersonalId: true
+        }
+      });
+
+      return informacionPersonalId.informacionPersonalId;
+    } catch (error) {
+      this._errorService.errorHandle(error, ErrorMethods.BadRequestException);
+    }
+  }
+
   async getTotalVistasPerfil(usuarioId: number) {
     try {
-console.log('JugadorId recibido:', usuarioId, typeof usuarioId);
 
       const total: number = await this._vistaJugadorPerfilService.getTotalVistasPerfil(usuarioId);
 
