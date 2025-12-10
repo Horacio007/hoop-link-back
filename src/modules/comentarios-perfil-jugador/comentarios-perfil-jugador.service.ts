@@ -34,9 +34,11 @@ export class ComentariosPerfilJugadorService {
         informacionPersonalId = await this._informacionPersonalService.getInformacionPersonalIdByUsuarioId(usuarioCreacionId);
       }
 
+      const perfilComentado: number = await this._informacionPersonalService.getUsuarioIdByInformacionPersonalId(informacionPersonalId);
+
       await this._comentarioPerfilJugadorRepository.save({
         autorComentarioId: usuarioCreacionId,
-        perfilComentadoJugadorId: informacionPersonalId,
+        perfilComentadoJugadorId: perfilComentado,
         autor: createComentariosPerfilJugadorDto.autor === 1,
         comentario: createComentariosPerfilJugadorDto.comentario,
         usuarioCreacion: usuarioCreacionId
@@ -67,10 +69,10 @@ export class ComentariosPerfilJugadorService {
         	cpj.fecha_creacion,
         	CONCAT(uAutor.nombre, ' ', uAutor.a_paterno, ' ', uAutor.a_materno) AS nombre_autor,
         	CONCAT(uPerfil.nombre, COALESCE(CONCAT(' ', ip.alias), ''),' ', uPerfil.a_paterno, ' ', uPerfil.a_materno) AS nombre_perfil
-        FROM informacion_personal ip
-        JOIN comentarios_perfil_jugador cpj ON ip.informacion_personal_id=cpj.perfil_comentado_jugador_id
+        FROM comentarios_perfil_jugador cpj
         LEFT JOIN usuario uAutor ON cpj.autor_comentario_id=uAutor.usuario_id
-        LEFT JOIN usuario uPerfil ON ip.usuario_id=uPerfil.usuario_id
+        LEFT JOIN usuario uPerfil ON cpj.perfil_comentado_jugador_id=uPerfil.usuario_id
+        LEFT JOIN informacion_personal ip ON uPerfil.usuario_id=ip.usuario_id
         WHERE ip.informacion_personal_id=${id}
         ORDER BY cpj.fecha_creacion DESC
       `);
