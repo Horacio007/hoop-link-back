@@ -26,7 +26,6 @@ export class ComentariosPerfilJugadorService {
 //#region Servicios
   async create(usuarioCreacionId: number, createComentariosPerfilJugadorDto: CreateComentariosPerfilJugadorDto) {
     try {
-
       let informacionPersonalId: number = 0;
       // si no viene el id de info personal quiere decir que es un comentario propio
       if (createComentariosPerfilJugadorDto.informacionPersonalId > 0) {

@@ -21,11 +21,13 @@ export class VistaJugadorPerfilService {
   async existeVista(coachId: number, jugadorId: number) {
     try {
       const existe = await this._vistaJugadorPerfilRepository.find({
-        where: [
-          {entrenadorId: coachId},
-          {jugadorId: jugadorId}
-        ]
+        where: {
+          entrenadorId: coachId,
+          jugadorId: jugadorId
+        },
       });
+
+      console.log('esto trae la consulta',existe);
 
       return existe.length == 0 ? false : true;
     } catch (error) {

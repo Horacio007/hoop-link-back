@@ -162,10 +162,13 @@ export class CoachService {
 
   async saveVistaPerfil(usuarioId: number, informacionPersonalId: number) {
     try {
-      const existe: boolean = await this._vistaJugadorPerfilService.existeVista(usuarioId, informacionPersonalId);
-
+      console.log('llegue a la vista perfil', usuarioId, informacionPersonalId);
+      const jugadorId: number = await this._informacionPersonalService.getUsuarioIdByInformacionPersonalId(informacionPersonalId);
+      const existe: boolean = await this._vistaJugadorPerfilService.existeVista(usuarioId, jugadorId);
+      console.log('existe visita', existe);
       if (!existe) {
-        const jugadorId: number = await this._informacionPersonalService.getUsuarioIdByInformacionPersonalId(informacionPersonalId);
+        console.log('llego al if para insertar la vista');
+        // const jugadorId: number = await this._informacionPersonalService.getUsuarioIdByInformacionPersonalId(informacionPersonalId);
         await this._vistaJugadorPerfilService.insertaVista(usuarioId, jugadorId);
       }
 

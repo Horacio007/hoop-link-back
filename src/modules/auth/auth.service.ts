@@ -133,7 +133,11 @@ export class AuthService {
             u.usuario_id as id,
             u.nombre,
             u.correo,
-            r.nombre as rol
+            case
+              when r.nombre = 'escuela coach' then 'coach'
+              when r.nombre = 'club coach' then 'coach'
+              else r.nombre
+            end as rol
           from usuario u
           join tipo_usuario tu on u.tipo_usuario_id=tu.tipo_usuario_id
           join rol r on tu.rol_id=r.rol_id
