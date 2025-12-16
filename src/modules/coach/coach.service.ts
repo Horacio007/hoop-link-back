@@ -156,7 +156,8 @@ export class CoachService {
 
         if (existe) {
           const jugadorFavoritoCoach = await this._favoritosJugadoresCoachService.getFavorito(usuarioId, jugadorUsuarioId);
-          nuevaInfo[index].interesado = jugadorFavoritoCoach.interesado ? true : false;
+          const interesBool = jugadorFavoritoCoach.interesado[0] !== 0;
+          nuevaInfo[index].interesado = interesBool ? true : false;
         }
         
       }

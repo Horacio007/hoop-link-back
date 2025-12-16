@@ -81,5 +81,12 @@ export class InformacionPersonalController {
     // console.log('antes de entrasr al metodo', user);
     return await this._informacionPersonalService.getTotalVistasPerfil(+user.id);
   }
+
+  @Get('total-favoritos')
+  @UseGuards(AccessTokenGuard)
+  async getTotalFavoritosPerfil(@User() user: JwtPayload,) {
+    // console.log('antes de entrasr al metodo', user);
+    return await this._informacionPersonalService.getTotalFavoritosPerfil(+user.id);
+  }
 //#endregion
 }

@@ -62,14 +62,34 @@ export class FavoritosJugadoresCoachService {
 
   async updateFavorito(coachId: number, jugadorId: number) {
     try {
+
+      const favorito = await this.getFavorito(coachId, jugadorId);
+
       await this._favoritosJugadoresCoachRepository.update(
         { coachId, jugadorId },  // ← condición WHERE
         {
-          interesado: false,      // o 0 si quieres
+          interesado: !(favorito.interesado[0] !== 0),      // o 0 si quieres
           usuarioEdicion: coachId,
           fechaEdicion: new Date(),
         }
       );
+    } catch (error) {
+      this._errorService.errorHandle(error, ErrorMethods.BadRequestException);
+    }
+  }
+
+  async getTotalFavoritosPerfil(jugadorId: number) {
+    try {
+      console.log('JugadorId recibido:', jugadorId, typeof jugadorId);
+
+      const total = await this._favoritosJugadoresCoachRepository.find({
+        where: {
+          jugadorId: jugadorId,
+          interesado: true
+        }
+      });
+
+      return total.length;
     } catch (error) {
       this._errorService.errorHandle(error, ErrorMethods.BadRequestException);
     }

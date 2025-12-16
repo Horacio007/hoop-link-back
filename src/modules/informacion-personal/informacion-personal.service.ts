@@ -21,6 +21,7 @@ import { RoutesPathsClodudinary } from '../../common/cloudinary/constants/route-
 import { IVideoInformacionPersonalResponse } from '../../common/interfaces/informacion-personal/videos/videos-response.interface';
 import { AuditLogService } from '../audit-log/audit-log.service';
 import { VistaJugadorPerfilService } from '../vista-jugador-perfil/vista-jugador-perfil.service';
+import { FavoritosJugadoresCoachService } from '../favoritos-jugadores-coach/favoritos-jugadores-coach.service';
 
 @Injectable()
 export class InformacionPersonalService {
@@ -38,6 +39,7 @@ export class InformacionPersonalService {
     private readonly _logrosClaveService: LogrosClaveInformacionPersonalService,
     private readonly _auditLogService: AuditLogService,
     private readonly _vistaJugadorPerfilService: VistaJugadorPerfilService,
+    private readonly _favoritoCoachPerfilService: FavoritosJugadoresCoachService,
   ) { }
 //#endregion
 
@@ -857,6 +859,23 @@ export class InformacionPersonalService {
     try {
 
       const total: number = await this._vistaJugadorPerfilService.getTotalVistasPerfil(usuarioId);
+
+      const response:IResponse<number> = {
+        statusCode: HttpStatus.OK,
+        mensaje: 'Información obtenida.',
+        data: total
+      }
+
+      return response;
+    } catch (error) {
+      this._errorService.errorHandle(error, ErrorMethods.BadRequestException);
+    }
+  }
+
+  async getTotalFavoritosPerfil(usuarioId: number) {
+    try {
+
+      const total: number = await this._favoritoCoachPerfilService.getTotalFavoritosPerfil(usuarioId);
 
       const response:IResponse<number> = {
         statusCode: HttpStatus.OK,
