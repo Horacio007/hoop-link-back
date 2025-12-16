@@ -9,6 +9,7 @@ import {
 } from "typeorm";
 import { AuditLog } from "./AuditLog";
 import { ComentariosPerfilJugador } from "./ComentariosPerfilJugador";
+import { FavoritosJugadoresCoach } from "./FavoritosJugadoresCoach";
 import { Ficheros } from "./Ficheros";
 import { InformacionPersonal } from "./InformacionPersonal";
 import { RefreshTokens } from "./RefreshTokens";
@@ -85,16 +86,28 @@ export class Usuario {
 
   @OneToMany(
     () => ComentariosPerfilJugador,
-    (comentariosPerfilJugador) => comentariosPerfilJugador.autorComentario
+    (comentariosPerfilJugador) =>
+      comentariosPerfilJugador.perfilComentadoJugador
   )
   comentariosPerfilJugadors: ComentariosPerfilJugador[];
 
   @OneToMany(
     () => ComentariosPerfilJugador,
-    (comentariosPerfilJugador) =>
-      comentariosPerfilJugador.perfilComentadoJugador
+    (comentariosPerfilJugador) => comentariosPerfilJugador.autorComentario
   )
   comentariosPerfilJugadors2: ComentariosPerfilJugador[];
+
+  @OneToMany(
+    () => FavoritosJugadoresCoach,
+    (favoritosJugadoresCoach) => favoritosJugadoresCoach.coach
+  )
+  favoritosJugadoresCoaches: FavoritosJugadoresCoach[];
+
+  @OneToMany(
+    () => FavoritosJugadoresCoach,
+    (favoritosJugadoresCoach) => favoritosJugadoresCoach.jugador
+  )
+  favoritosJugadoresCoaches2: FavoritosJugadoresCoach[];
 
   @OneToMany(() => Ficheros, (ficheros) => ficheros.usuario)
   ficheros: Ficheros[];

@@ -24,4 +24,19 @@ export class CoachController {
   ) {
     return await this.coachService.saveVistaPerfil(+user.id, informacionPersonalId);
   }
+
+  @Post('save-favorito-perfil/:id')
+  @UseGuards(AccessTokenGuard)
+  async saveFavoritoPerfil(
+    @User() user: JwtPayload,
+    @Param('id') informacionPersonalId: number
+  ) {
+    return await this.coachService.saveFavoritoPerfil(+user.id, informacionPersonalId);
+  }
+
+  @Get('list-all-jugadores-favoritos')
+  @UseGuards(AccessTokenGuard)
+  async findAllFavoritos() {
+    return await this.coachService.findAll();
+  }
 }

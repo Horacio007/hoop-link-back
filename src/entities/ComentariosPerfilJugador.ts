@@ -59,16 +59,16 @@ export class ComentariosPerfilJugador {
     onUpdate: "NO ACTION",
   })
   @JoinColumn([
-    { name: "autor_comentario_id", referencedColumnName: "usuarioId" },
+    { name: "perfil_comentado_jugador_id", referencedColumnName: "usuarioId" },
   ])
-  autorComentario: Usuario;
+  perfilComentadoJugador: Usuario;
 
   @ManyToOne(() => Usuario, (usuario) => usuario.comentariosPerfilJugadors2, {
     onDelete: "NO ACTION",
     onUpdate: "NO ACTION",
   })
   @JoinColumn([
-    { name: "perfil_comentado_jugador_id", referencedColumnName: "usuarioId" },
+    { name: "autor_comentario_id", referencedColumnName: "usuarioId" },
   ])
-  perfilComentadoJugador: Usuario;
+  autorComentario: Usuario;
 }

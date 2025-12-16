@@ -29,6 +29,7 @@ import { VistaJugadorPerfilModule } from './modules/vista-jugador-perfil/vista-j
 import { ComentariosPerfilJugadorModule } from './modules/comentarios-perfil-jugador/comentarios-perfil-jugador.module';
 import { VistaJugadorPerfil } from './entities/VistaJugadorPerfil';
 import { ComentariosPerfilJugador } from './entities/ComentariosPerfilJugador';
+import { FavoritosJugadoresCoachModule } from './modules/favoritos-jugadores-coach/favoritos-jugadores-coach.module';
 
 @Module({
   imports: [
@@ -77,6 +78,7 @@ import { ComentariosPerfilJugador } from './entities/ComentariosPerfilJugador';
     CoachModule,
     VistaJugadorPerfilModule,
     ComentariosPerfilJugadorModule,
+    FavoritosJugadoresCoachModule,
   ],
   controllers: [],
   providers: [],
