@@ -33,21 +33,6 @@ export class CoachService {
 //#region Metodos
   async findAll(usuarioId: number) {
     try {
-      // const infoPersonal = await this._informacionPersonalRepository.find({
-      //   select: {
-      //     informacionPersonalId: true,
-      //     fotoPerfilId: true,
-      //     alias: true,
-      //     altura: true,
-      //     peso: true,
-      //     estatusBusquedaJugadorId: true,
-      //     manoJuego: true ,
-      //     posicionJuegoUnoId: true ,
-      //     posicionJuegoDosId: true ,
-      //   },
-      //   relations: ['usuario']
-      // });
-
       // En tu repositorio o servicio
       const infoPersonalConUsuario = await this._informacionPersonalRepository
       .createQueryBuilder('ip') // ip = Alias para InformacionPersonal
@@ -318,10 +303,24 @@ export class CoachService {
         });
       }
 
+      for (let index = 0; index < nuevaInfo.length; index++) {
+        const jugadorUsuarioId = await this._informacionPersonalService.getUsuarioIdByInformacionPersonalId(nuevaInfo[index].informacionPersonalId)
+        const existe = await this._favoritosJugadoresCoachService.existeFavorito(usuarioId, jugadorUsuarioId);
+
+        if (existe) {
+          const jugadorFavoritoCoach = await this._favoritosJugadoresCoachService.getFavorito(usuarioId, jugadorUsuarioId);
+          const interesBool = jugadorFavoritoCoach.interesado[0] !== 0;
+          nuevaInfo[index].interesado = interesBool ? true : false;
+        }
+        
+      }
+
+      const infoFavoritos = nuevaInfo.filter(x => x.interesado === true);
+
       const response:IResponse<IListadoJugadores[] | undefined> = {
         statusCode: HttpStatus.OK,
         mensaje: 'Información obtenida.',
-        data: nuevaInfo
+        data: infoFavoritos
       }
       // console.log(response);
       return response;

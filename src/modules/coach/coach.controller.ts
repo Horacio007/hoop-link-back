@@ -37,6 +37,6 @@ export class CoachController {
   @Get('list-all-jugadores-favoritos')
   @UseGuards(AccessTokenGuard)
   async findAllFavoritos(@User() user: JwtPayload,) {
-    return await this.coachService.findAll(+user.id);
+    return await this.coachService.findAllFavoritos(+user.id);
   }
 }
