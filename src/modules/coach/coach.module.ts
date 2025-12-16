@@ -9,6 +9,7 @@ import { CommonModule } from '../../common/common.module';
 import { AuthModule } from '../auth/auth.module';
 import { VistaJugadorPerfilModule } from '../vista-jugador-perfil/vista-jugador-perfil.module';
 import { InformacionPersonalModule } from '../informacion-personal/informacion-personal.module';
+import { FavoritosJugadoresCoachModule } from '../favoritos-jugadores-coach/favoritos-jugadores-coach.module';
 
 @Module({
   controllers: [CoachController],
@@ -22,7 +23,8 @@ import { InformacionPersonalModule } from '../informacion-personal/informacion-p
     CommonModule,
     AuthModule,
     VistaJugadorPerfilModule,
-    InformacionPersonalModule
+    InformacionPersonalModule,
+    FavoritosJugadoresCoachModule
   ]
 })
 export class CoachModule {}

@@ -13,6 +13,7 @@ import { CommonModule } from '../../common/common.module';
       FavoritosJugadoresCoach
     ]),
     CommonModule,
-  ]
+  ],
+  exports: [FavoritosJugadoresCoachService]
 })
 export class FavoritosJugadoresCoachModule {}

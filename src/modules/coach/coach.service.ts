@@ -31,7 +31,7 @@ export class CoachService {
 //#endregion
 
 //#region Metodos
-  async findAll() {
+  async findAll(usuarioId: number) {
     try {
       // const infoPersonal = await this._informacionPersonalRepository.find({
       //   select: {
@@ -146,7 +146,19 @@ export class CoachService {
           posicionJuegoDos: posicionJuegoDos?.nombre ?? undefined ,
           municipio: infoPersonalConUsuario[index].nombreMunicipio,
           estado: infoPersonalConUsuario[index].nombreEstado,
+          interesado: false
         });
+      }
+
+      for (let index = 0; index < nuevaInfo.length; index++) {
+        const jugadorUsuarioId = await this._informacionPersonalService.getUsuarioIdByInformacionPersonalId(nuevaInfo[index].informacionPersonalId)
+        const existe = await this._favoritosJugadoresCoachService.existeFavorito(usuarioId, jugadorUsuarioId);
+
+        if (existe) {
+          const jugadorFavoritoCoach = await this._favoritosJugadoresCoachService.getFavorito(usuarioId, jugadorUsuarioId);
+          nuevaInfo[index].interesado = jugadorFavoritoCoach.interesado ? true : false;
+        }
+        
       }
 
       const response:IResponse<IListadoJugadores[] | undefined> = {
@@ -201,7 +213,7 @@ export class CoachService {
     }
   }
 
-   async findAllFavoritos() {
+   async findAllFavoritos(usuarioId: number) {
     try {
       // En tu repositorio o servicio
       const infoPersonalConUsuario = await this._informacionPersonalRepository
@@ -301,6 +313,7 @@ export class CoachService {
           posicionJuegoDos: posicionJuegoDos?.nombre ?? undefined ,
           municipio: infoPersonalConUsuario[index].nombreMunicipio,
           estado: infoPersonalConUsuario[index].nombreEstado,
+          interesado: false
         });
       }
 

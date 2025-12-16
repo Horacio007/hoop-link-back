@@ -12,8 +12,8 @@ export class CoachController {
 
   @Get('list-all-jugadores')
   @UseGuards(AccessTokenGuard)
-  async findAll() {
-    return await this.coachService.findAll();
+  async findAll(@User() user: JwtPayload,) {
+    return await this.coachService.findAll(+user.id);
   }
 
   @Post('save-vista-perfil/:id')
@@ -36,7 +36,7 @@ export class CoachController {
 
   @Get('list-all-jugadores-favoritos')
   @UseGuards(AccessTokenGuard)
-  async findAllFavoritos() {
-    return await this.coachService.findAll();
+  async findAllFavoritos(@User() user: JwtPayload,) {
+    return await this.coachService.findAll(+user.id);
   }
 }

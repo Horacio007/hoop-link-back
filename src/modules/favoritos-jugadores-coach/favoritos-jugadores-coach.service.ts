@@ -33,6 +33,21 @@ export class FavoritosJugadoresCoachService {
     }
   }
 
+  async getFavorito(coachId: number, jugadorId: number) {
+    try {
+      const existe = await this._favoritosJugadoresCoachRepository.find({
+        where: {
+          coachId  : coachId,
+          jugadorId: jugadorId
+        },
+      });
+
+      return existe[0];
+    } catch (error) {
+      this._errorService.errorHandle(error, ErrorMethods.BadRequestException);
+    }
+  }
+
   async insertFavorito(coachId: number, jugadorId: number) {
     try {
       await this._favoritosJugadoresCoachRepository.save({
