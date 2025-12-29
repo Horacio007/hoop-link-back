@@ -39,4 +39,10 @@ export class CoachController {
   async findAllFavoritos(@User() user: JwtPayload,) {
     return await this.coachService.findAllFavoritos(+user.id);
   }
+
+  @Get('total-favoritos')
+  @UseGuards(AccessTokenGuard)
+  async getTotalFavoritosPerfil(@User() user: JwtPayload,) {
+    return await this.coachService.getTotalFavoritosPerfil(+user.id);
+  }
 }

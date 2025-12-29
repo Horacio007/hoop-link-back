@@ -199,7 +199,7 @@ export class CoachService {
     }
   }
 
-   async findAllFavoritos(usuarioId: number) {
+  async findAllFavoritos(usuarioId: number) {
     try {
       // En tu repositorio o servicio
       const infoPersonalConUsuario = await this._informacionPersonalRepository
@@ -323,6 +323,23 @@ export class CoachService {
         data: infoFavoritos
       }
       // console.log(response);
+      return response;
+    } catch (error) {
+      this._errorService.errorHandle(error, ErrorMethods.BadRequestException);
+    }
+  }
+
+  async getTotalFavoritosPerfil(usuarioId: number) {
+    try {
+
+      const total: number = await this._favoritosJugadoresCoachService.getTotalFavoritosPerfilCoach(usuarioId);
+
+      const response:IResponse<number> = {
+        statusCode: HttpStatus.OK,
+        mensaje: 'Información obtenida.',
+        data: total
+      }
+
       return response;
     } catch (error) {
       this._errorService.errorHandle(error, ErrorMethods.BadRequestException);

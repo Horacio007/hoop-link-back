@@ -94,6 +94,23 @@ export class FavoritosJugadoresCoachService {
       this._errorService.errorHandle(error, ErrorMethods.BadRequestException);
     }
   }
+
+  async getTotalFavoritosPerfilCoach(coachId: number) {
+    try {
+      console.log('coachId recibido:', coachId, typeof coachId);
+
+      const total = await this._favoritosJugadoresCoachRepository.find({
+        where: {
+          coachId: coachId,
+          interesado: true
+        }
+      });
+
+      return total.length;
+    } catch (error) {
+      this._errorService.errorHandle(error, ErrorMethods.BadRequestException);
+    }
+  }
   
 //#endregion
 }
