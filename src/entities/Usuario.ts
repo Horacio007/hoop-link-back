@@ -8,12 +8,15 @@ import {
   PrimaryGeneratedColumn,
 } from "typeorm";
 import { AuditLog } from "./AuditLog";
+import { ComentariosPerfilJugador } from "./ComentariosPerfilJugador";
+import { FavoritosJugadoresCoach } from "./FavoritosJugadoresCoach";
 import { Ficheros } from "./Ficheros";
 import { InformacionPersonal } from "./InformacionPersonal";
 import { RefreshTokens } from "./RefreshTokens";
 import { Municipio } from "./Municipio";
 import { TipoUsuario } from "./TipoUsuario";
 import { Estatus } from "./Estatus";
+import { VistaJugadorPerfil } from "./VistaJugadorPerfil";
 
 @Index("correo", ["correo"], { unique: true })
 @Index("FK_estatus_usuario", ["estatusId"], {})
@@ -81,6 +84,31 @@ export class Usuario {
   @OneToMany(() => AuditLog, (auditLog) => auditLog.usuario)
   auditLogs: AuditLog[];
 
+  @OneToMany(
+    () => ComentariosPerfilJugador,
+    (comentariosPerfilJugador) =>
+      comentariosPerfilJugador.perfilComentadoJugador
+  )
+  comentariosPerfilJugadors: ComentariosPerfilJugador[];
+
+  @OneToMany(
+    () => ComentariosPerfilJugador,
+    (comentariosPerfilJugador) => comentariosPerfilJugador.autorComentario
+  )
+  comentariosPerfilJugadors2: ComentariosPerfilJugador[];
+
+  @OneToMany(
+    () => FavoritosJugadoresCoach,
+    (favoritosJugadoresCoach) => favoritosJugadoresCoach.coach
+  )
+  favoritosJugadoresCoaches: FavoritosJugadoresCoach[];
+
+  @OneToMany(
+    () => FavoritosJugadoresCoach,
+    (favoritosJugadoresCoach) => favoritosJugadoresCoach.jugador
+  )
+  favoritosJugadoresCoaches2: FavoritosJugadoresCoach[];
+
   @OneToMany(() => Ficheros, (ficheros) => ficheros.usuario)
   ficheros: Ficheros[];
 
@@ -115,4 +143,16 @@ export class Usuario {
   })
   @JoinColumn([{ name: "estatus_id", referencedColumnName: "estatusId" }])
   estatus: Estatus;
+
+  @OneToMany(
+    () => VistaJugadorPerfil,
+    (vistaJugadorPerfil) => vistaJugadorPerfil.entrenador
+  )
+  vistaJugadorPerfils: VistaJugadorPerfil[];
+
+  @OneToMany(
+    () => VistaJugadorPerfil,
+    (vistaJugadorPerfil) => vistaJugadorPerfil.jugador
+  )
+  vistaJugadorPerfils2: VistaJugadorPerfil[];
 }

@@ -56,6 +56,13 @@ export class InformacionPersonalController {
     return await this._informacionPersonalService.getInformacionPersonal(+user.id);
   }
 
+  @Get('detalle/:id')
+  @UseGuards(AccessTokenGuard)
+  async getInformacionPersonalById( @Param('id') id?: number) {
+    // console.log('aaqui va le di',id)
+    return await this._informacionPersonalService.getInformacionPersonalById(+id);
+  }
+
   @Post('upload-video/:tipo/:id?')
   @UseInterceptors(FileInterceptor('file'))
   @UseGuards(AccessTokenGuard)
@@ -66,6 +73,20 @@ export class InformacionPersonalController {
     @Query('id') id?: number,
   ) {
     return await this._informacionPersonalService.uploadVideo(+user.id, file, +id, tipo);
+  }
+
+  @Get('total-vistas')
+  @UseGuards(AccessTokenGuard)
+  async getTotalVistasPerfil(@User() user: JwtPayload,) {
+    // console.log('antes de entrasr al metodo', user);
+    return await this._informacionPersonalService.getTotalVistasPerfil(+user.id);
+  }
+
+  @Get('total-favoritos')
+  @UseGuards(AccessTokenGuard)
+  async getTotalFavoritosPerfil(@User() user: JwtPayload,) {
+    // console.log('antes de entrasr al metodo', user);
+    return await this._informacionPersonalService.getTotalFavoritosPerfil(+user.id);
   }
 //#endregion
 }

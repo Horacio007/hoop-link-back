@@ -9,7 +9,7 @@ import { CloudinaryService } from '../../common/cloudinary/services/cloudinary.s
 import { UploadApiResponse } from 'cloudinary';
 import { Ficheros } from '../../entities/Ficheros';
 import { FicherosService } from '../ficheros/ficheros.service';
-import { info } from 'console';
+import { info, error } from 'console';
 import { IResponse } from '../../common/interfaces';
 import { IInformacionPersonal } from '../../common/interfaces/informacion-personal/informacion-personal.interface';
 import { CatalogoService } from '../catalogo/catalogo.service';
@@ -20,6 +20,8 @@ import { v4 as uuidv4 } from 'uuid'; // Asegúrate de instalar: npm install uuid
 import { RoutesPathsClodudinary } from '../../common/cloudinary/constants/route-paths.const';
 import { IVideoInformacionPersonalResponse } from '../../common/interfaces/informacion-personal/videos/videos-response.interface';
 import { AuditLogService } from '../audit-log/audit-log.service';
+import { VistaJugadorPerfilService } from '../vista-jugador-perfil/vista-jugador-perfil.service';
+import { FavoritosJugadoresCoachService } from '../favoritos-jugadores-coach/favoritos-jugadores-coach.service';
 
 @Injectable()
 export class InformacionPersonalService {
@@ -36,6 +38,8 @@ export class InformacionPersonalService {
     private readonly _historialEntrenadoresService: HistorialEntrenadoresInformacionPersonalService,
     private readonly _logrosClaveService: LogrosClaveInformacionPersonalService,
     private readonly _auditLogService: AuditLogService,
+    private readonly _vistaJugadorPerfilService: VistaJugadorPerfilService,
+    private readonly _favoritoCoachPerfilService: FavoritosJugadoresCoachService,
   ) { }
 //#endregion
 
@@ -473,6 +477,193 @@ export class InformacionPersonalService {
     }
   }
 
+  async getInformacionPersonalById(informacionPersonalId: number) {
+    try {
+      // primero la tabla general de informacion personal
+      const infoPersonal = await this._informacionPersonalRepository.findOne({
+        where: {informacionPersonalId},
+        select: {
+          informacionPersonalId: true,
+          fotoPerfilId: true,
+          alias: true,
+          altura: true,
+          peso: true,
+          estatusBusquedaJugadorId: true,
+          medidaMano: true,
+          largoBrazo: true,
+          quienEres: true,
+          alturaSaltoVertical: true ,
+          distanciaSaltoHorizontal: true ,
+          pesoBenchPress: true ,
+          pesoSquats: true ,
+          pesoPressMilitar: true ,
+          pesoRepeticionBenchPress: true ,
+          pesoRepeticionSquats: true ,
+          pesoRepeticionPressMilitar: true ,
+          tiempoDistanciaCienMts: true ,
+          tiempoDistanciaUnKm: true ,
+          tiempoDistanciaTresKm: true ,
+          tiempoDistanciaCincoKm: true ,
+          anioEmpezoAJugar: true ,
+          manoJuego: true ,
+          posicionJuegoUnoId: true ,
+          posicionJuegoDosId: true ,
+          clavas: true ,
+          puntosPorJuego: true ,
+          asistenciasPorJuego: true ,
+          rebotesPorJuego: true ,
+          porcentajeTirosMedia: true ,
+          porcentajeTirosTres: true ,
+          porcentajeTirosLibres: true ,
+          desdeCuandoJuegas: true ,
+          horasEntrenamientoSemana: true ,
+          horasGymSemana: true ,
+          pertenecesClub: true ,
+          nombreClub: true ,
+          objetivos: true ,
+          valores: true ,
+          videoBotandoId: true ,
+          videoTirandoId: true ,
+          videoColadaId: true ,
+          videoEntrenandoId: true ,
+          videoJugandoId: true , 
+          facebook: true ,
+          instagram: true ,
+          tiktok: true ,
+          youtube: true ,
+        }
+      });
+
+      // si no existe es primera ves y lo saca
+      if (!infoPersonal) {
+        const response:IResponse<undefined> = {
+          statusCode: HttpStatus.OK,
+          mensaje: 'Usuario sin información personal.',
+          data: undefined
+        }
+        
+        return response;
+      }
+      
+      // obtengo el estatus del perfil
+      const estatusBusquedaJugador = await this._catalogoService.getInfoCatalogo(
+        'estatus_busqueda_jugador_id',
+        'estatus_busqueda_jugador',
+        infoPersonal.estatusBusquedaJugadorId
+      );
+
+      // obtengo las posiciones de basketabll
+      const posicionJuegoUno = await this._catalogoService.getInfoCatalogo(
+        'posicion_juego_id',
+        'posicion_juego',
+        infoPersonal.posicionJuegoUnoId
+      );
+
+      const posicionJuegoDos = await this._catalogoService.getInfoCatalogo(
+        'posicion_juego_id',
+        'posicion_juego',
+        infoPersonal.posicionJuegoDosId
+      );
+      
+      // obtengo los historial de eventos, entrenadores y logros
+      const historialEquipos = await this._historialEquipossService.getAll(infoPersonal.informacionPersonalId);
+      const historialEntrenadores = await this._historialEntrenadoresService.getAll(infoPersonal.informacionPersonalId);
+      const logrosClave = await this._logrosClaveService.getAll(infoPersonal.informacionPersonalId);
+
+      // recupero la foto de perfil
+      const fotoPerfilId = await this._ficherosService.getPublicIdByFicheroId(infoPersonal.fotoPerfilId);
+      const fotoPerfilPublicId = await this._cloudinaryService.getImage(fotoPerfilId);
+
+      // recupero los diferentes videos
+      let videoBotandoPublicId;
+      if (infoPersonal.videoBotandoId) {
+        const videoBotando = await this._ficherosService.getPublicIdByFicheroId(infoPersonal.videoBotandoId ?? 0);
+        videoBotandoPublicId = await this._cloudinaryService.getVideo(videoBotando);
+      }
+
+      let videoTirandoPublicId;
+      if (infoPersonal.videoTirandoId) {
+        const videoTirando = await this._ficherosService.getPublicIdByFicheroId(infoPersonal.videoTirandoId);
+        videoTirandoPublicId = await this._cloudinaryService.getVideo(videoTirando); 
+      }
+
+      let videoColadaPublicId;
+      if (infoPersonal.videoColadaId) {
+        const videoColada = await this._ficherosService.getPublicIdByFicheroId(infoPersonal.videoColadaId);
+        videoColadaPublicId = await this._cloudinaryService.getVideo(videoColada);
+
+      }
+
+      let videoEntrenandoPublicId;
+      if (infoPersonal.videoEntrenandoId) {
+        const videoEntrenando = await this._ficherosService.getPublicIdByFicheroId(infoPersonal.videoEntrenandoId);
+        videoEntrenandoPublicId = await this._cloudinaryService.getVideo(videoEntrenando);
+      }
+
+      let videoJugandoPublicId;
+      if (infoPersonal.videoJugandoId) {
+        const videoJugando = await this._ficherosService.getPublicIdByFicheroId(infoPersonal.videoJugandoId);
+        videoJugandoPublicId = await this._cloudinaryService.getVideo(videoJugando);
+      } 
+
+      const sendInfoPersonal: IInformacionPersonal = {
+        ...infoPersonal,
+        fotoPerfilPublicUrl: fotoPerfilPublicId,
+        estatusBusquedaJugador,
+        posicionJuegoUno,
+        posicionJuegoDos,
+      }
+
+      if (videoBotandoPublicId) {
+        sendInfoPersonal.videoBotandoPublicUrl = videoBotandoPublicId['url'];
+      }
+
+      if (videoTirandoPublicId) {
+        sendInfoPersonal.videoTirandoPublicUrl = videoTirandoPublicId['url'];
+      }
+
+      if (videoColadaPublicId) {
+        sendInfoPersonal.videoColadaPublicUrl = videoColadaPublicId['url'];
+      }
+
+      if (videoEntrenandoPublicId) {
+        sendInfoPersonal.videoEntrenandoPublicUrl = videoEntrenandoPublicId['url'];
+      }
+
+      if (videoJugandoPublicId) {
+        sendInfoPersonal.videoJugandoPublicUrl = videoJugandoPublicId['url'];
+      }
+
+      // Si manoJuego viene como Buffer o Uint8Array
+      const manoJuegoBuffer = sendInfoPersonal.manoJuego;
+      const clavasBuffer = sendInfoPersonal.clavas;
+      const perteneceClubBuffer = sendInfoPersonal.pertenecesClub
+      
+      // Convertimos a boolean
+      const manoJuegoBool = manoJuegoBuffer[0] !== 0;
+      const clavasBool = clavasBuffer[0] !== 0;
+      const perteneClubBool = perteneceClubBuffer[0] !== 0;
+
+      const response:IResponse<IInformacionPersonal> = {
+        statusCode: HttpStatus.OK,
+        mensaje: 'Información obtenida.',
+        data: {
+          ...sendInfoPersonal,
+          manoJuego: manoJuegoBool,
+          clavas: clavasBool,
+          pertenecesClub:perteneClubBool,
+          historialEquipos: historialEquipos,
+          historialEntrenadores,
+          logrosClave,
+        }
+      }
+      // console.log(response);
+      return response;
+    } catch (error) {
+      this._errorService.errorHandle(error, ErrorMethods.BadRequestException);
+    }
+  }
+
   async uploadVideo(usuarioId:number, file: Express.Multer.File, ficheroId:number, tipo:string): Promise<IResponse<IVideoInformacionPersonalResponse>> {
     const queryRunner = this._dataSource.createQueryRunner();
 
@@ -631,6 +822,70 @@ export class InformacionPersonalService {
       this._errorService.errorHandle(error, ErrorMethods.BadRequestException);
     } finally {
       await queryRunner.release();
+    }
+  }
+
+  async getUsuarioIdByInformacionPersonalId(informacionPersonalId: number) {
+    try {
+      const usuarioId = await this._informacionPersonalRepository.findOne({
+        where: {informacionPersonalId},
+        select: {
+          usuarioId: true
+        }
+      });
+
+      return usuarioId.usuarioId;
+    } catch (error) {
+      this._errorService.errorHandle(error, ErrorMethods.BadRequestException);
+    }
+  }
+
+  async getInformacionPersonalIdByUsuarioId(usuarioId: number) {
+    try {
+      const informacionPersonalId = await this._informacionPersonalRepository.findOne({
+        where: {usuarioId},
+        select: {
+          informacionPersonalId: true
+        }
+      });
+
+      return informacionPersonalId.informacionPersonalId;
+    } catch (error) {
+      this._errorService.errorHandle(error, ErrorMethods.BadRequestException);
+    }
+  }
+
+  async getTotalVistasPerfil(usuarioId: number) {
+    try {
+
+      const total: number = await this._vistaJugadorPerfilService.getTotalVistasPerfil(usuarioId);
+
+      const response:IResponse<number> = {
+        statusCode: HttpStatus.OK,
+        mensaje: 'Información obtenida.',
+        data: total
+      }
+
+      return response;
+    } catch (error) {
+      this._errorService.errorHandle(error, ErrorMethods.BadRequestException);
+    }
+  }
+
+  async getTotalFavoritosPerfil(usuarioId: number) {
+    try {
+
+      const total: number = await this._favoritoCoachPerfilService.getTotalFavoritosPerfil(usuarioId);
+
+      const response:IResponse<number> = {
+        statusCode: HttpStatus.OK,
+        mensaje: 'Información obtenida.',
+        data: total
+      }
+
+      return response;
+    } catch (error) {
+      this._errorService.errorHandle(error, ErrorMethods.BadRequestException);
     }
   }
 //#endregion

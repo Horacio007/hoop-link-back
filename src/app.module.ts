@@ -24,7 +24,12 @@ import { HistorialEntrenadoresInformacionPersonalModule } from './modules/histor
 import { LogrosClaveInformacionPersonalModule } from './modules/logros-clave-informacion-personal/logros-clave-informacion-personal.module';
 import { AuditLogModule } from './modules/audit-log/audit-log.module';
 import { AuditLog } from './entities/AuditLog';
-
+import { CoachModule } from './modules/coach/coach.module';
+import { VistaJugadorPerfilModule } from './modules/vista-jugador-perfil/vista-jugador-perfil.module';
+import { ComentariosPerfilJugadorModule } from './modules/comentarios-perfil-jugador/comentarios-perfil-jugador.module';
+import { VistaJugadorPerfil } from './entities/VistaJugadorPerfil';
+import { ComentariosPerfilJugador } from './entities/ComentariosPerfilJugador';
+import { FavoritosJugadoresCoachModule } from './modules/favoritos-jugadores-coach/favoritos-jugadores-coach.module';
 
 @Module({
   imports: [
@@ -55,7 +60,9 @@ import { AuditLog } from './entities/AuditLog';
         Ficheros,
         InformacionPersonal,
         PosicionJuego,
-        AuditLog
+        AuditLog,
+        VistaJugadorPerfil,
+        ComentariosPerfilJugador
       ]
     }),
     AuthModule,
@@ -68,6 +75,10 @@ import { AuditLog } from './entities/AuditLog';
     HistorialEntrenadoresInformacionPersonalModule,
     LogrosClaveInformacionPersonalModule,
     AuditLogModule,
+    CoachModule,
+    VistaJugadorPerfilModule,
+    ComentariosPerfilJugadorModule,
+    FavoritosJugadoresCoachModule,
   ],
   controllers: [],
   providers: [],
