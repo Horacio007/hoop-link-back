@@ -11,8 +11,8 @@ import { Estatus } from "./Estatus";
 import { Usuario } from "./Usuario";
 import { InformacionPersonal } from "./InformacionPersonal";
 
-@Index("FK_ficheros_estatus", ["estatusId"], {})
 @Index("FK_ficheros_usuario", ["usuarioId"], {})
+@Index("FK_ficheros_estatus", ["estatusId"], {})
 @Entity("ficheros", { schema: "hoop-link" })
 export class Ficheros {
   @PrimaryGeneratedColumn({ type: "int", name: "fichero_id" })
