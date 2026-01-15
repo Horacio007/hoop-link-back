@@ -59,6 +59,7 @@ export class CoachService {
           'ip.manoJuego' ,
           'ip.posicionJuegoUnoId' ,
           'ip.posicionJuegoDosId' ,
+          'ip.sexoId',
           // ... selecciona el resto de campos de ip
           
           // 3. Especificar qué campos quieres de la tabla join (Usuario)
@@ -68,7 +69,7 @@ export class CoachService {
 
             // 5. 💡 CAMPOS DE UBICACIÓN (nombres)
           'm.nombre as nombreMunicipio', // Nombre del Municipio
-          'e.nombre as nombreEstado', // Nombre del Estado
+          'e.nombre as nombreEstado' // Nombre del Estado
       ])
       
       // 4. (Opcional) Puedes añadir condiciones WHERE aquí
@@ -87,6 +88,13 @@ export class CoachService {
           'estatus_busqueda_jugador_id',
           'estatus_busqueda_jugador',
           infoPersonalConUsuario[index].ip_estatus_busqueda_jugador_id
+        );
+
+        // obtengo el estatus del perfil
+        const sexo = await this._catalogoService.getInfoCatalogo(
+          'sexo_id',
+          'sexo',
+          infoPersonalConUsuario[index].ip_sexo_id
         );
   
         // obtengo las posiciones de basketabll
@@ -129,6 +137,7 @@ export class CoachService {
           manoJuego: manoJuego,
           posicionJuegoUno: posicionJuegoUno?.nombre ?? undefined ,
           posicionJuegoDos: posicionJuegoDos?.nombre ?? undefined ,
+          sexo: sexo?.nombre ?? undefined ,
           municipio: infoPersonalConUsuario[index].nombreMunicipio,
           estado: infoPersonalConUsuario[index].nombreEstado,
           interesado: false
@@ -227,6 +236,7 @@ export class CoachService {
           'ip.manoJuego' ,
           'ip.posicionJuegoUnoId' ,
           'ip.posicionJuegoDosId' ,
+          'ip.sexoId',
           // ... selecciona el resto de campos de ip
           
           // 3. Especificar qué campos quieres de la tabla join (Usuario)
@@ -263,6 +273,13 @@ export class CoachService {
           'posicion_juego',
           infoPersonalConUsuario[index].ip_posicion_juego_uno_id
         );
+
+        // obtengo el estatus del perfil
+        const sexo = await this._catalogoService.getInfoCatalogo(
+          'sexo_id',
+          'sexo',
+          infoPersonalConUsuario[index].ip_sexo_id
+        );
   
         const posicionJuegoDos = await this._catalogoService.getInfoCatalogo(
           'posicion_juego_id',
@@ -297,6 +314,7 @@ export class CoachService {
           manoJuego: manoJuego,
           posicionJuegoUno: posicionJuegoUno?.nombre ?? undefined ,
           posicionJuegoDos: posicionJuegoDos?.nombre ?? undefined ,
+          sexo: sexo?.nombre ?? undefined ,
           municipio: infoPersonalConUsuario[index].nombreMunicipio,
           estado: infoPersonalConUsuario[index].nombreEstado,
           interesado: false

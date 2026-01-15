@@ -9,6 +9,7 @@ export interface IInformacionPersonal {
     altura: number,
     peso: number,
     estatusBusquedaJugador: ICatalogo,
+    sexo: ICatalogo,
     medidaMano: number,
     largoBrazo: number,
     quienEres: string,

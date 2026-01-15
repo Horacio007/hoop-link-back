@@ -78,6 +78,7 @@ export class InformacionPersonalService {
         if (ficheroFotoPerfil !== undefined) {
           existing.fotoPerfilId = ficheroFotoPerfil.ficheroId;
         }
+
         if (perfil.estatusBusquedaJugador?.id !== undefined) {
           const estatusId = perfil.estatusBusquedaJugador.id;
     
@@ -89,6 +90,19 @@ export class InformacionPersonalService {
           }
           existing.estatusBusquedaJugador = undefined;
         }
+
+        if (perfil.sexo?.id !== undefined) {
+          const sexoId = perfil.sexo.id;
+    
+          // Si el ID es una cadena vacía (''), asigna null. De lo contrario, convierte a número.
+          if (sexoId === '' || sexoId === null) {
+              existing.sexoId = null;
+          } else {
+              existing.sexoId = +sexoId;
+          }
+          existing.sexo = undefined;
+        }
+
         existing.usuarioId = usuarioId;
         
         // actualiza la fuertza y resistencia
@@ -207,6 +221,7 @@ export class InformacionPersonalService {
           altura: perfil.altura,
           peso: perfil.peso,
           estatusBusquedaJugadorId: perfil.estatusBusquedaJugador?.id ? +perfil.estatusBusquedaJugador.id : null,
+          sexoId: perfil.sexo?.id ? +perfil.sexo.id : null,
           medidaMano: perfil.medidaMano,
           largoBrazo: perfil.largoBrazo,
           quienEres: perfil.quienEres,
@@ -302,6 +317,7 @@ export class InformacionPersonalService {
           altura: true,
           peso: true,
           estatusBusquedaJugadorId: true,
+          sexoId: true,
           medidaMano: true,
           largoBrazo: true,
           quienEres: true,
@@ -365,6 +381,13 @@ export class InformacionPersonalService {
         infoPersonal.estatusBusquedaJugadorId
       );
 
+      // obtengo el sexo del perfil
+      const sexo = await this._catalogoService.getInfoCatalogo(
+        'sexo_id',
+        'sexo',
+        infoPersonal.sexoId
+      );
+
       // obtengo las posiciones de basketabll
       const posicionJuegoUno = await this._catalogoService.getInfoCatalogo(
         'posicion_juego_id',
@@ -423,6 +446,7 @@ export class InformacionPersonalService {
         ...infoPersonal,
         fotoPerfilPublicUrl: fotoPerfilPublicId,
         estatusBusquedaJugador,
+        sexo,
         posicionJuegoUno,
         posicionJuegoDos,
       }
@@ -489,6 +513,7 @@ export class InformacionPersonalService {
           altura: true,
           peso: true,
           estatusBusquedaJugadorId: true,
+          sexoId: true,
           medidaMano: true,
           largoBrazo: true,
           quienEres: true,
@@ -552,6 +577,12 @@ export class InformacionPersonalService {
         infoPersonal.estatusBusquedaJugadorId
       );
 
+      const sexo = await this._catalogoService.getInfoCatalogo(
+        'sexo_id',
+        'sexo',
+        infoPersonal.sexoId
+      );
+
       // obtengo las posiciones de basketabll
       const posicionJuegoUno = await this._catalogoService.getInfoCatalogo(
         'posicion_juego_id',
@@ -610,6 +641,7 @@ export class InformacionPersonalService {
         ...infoPersonal,
         fotoPerfilPublicUrl: fotoPerfilPublicId,
         estatusBusquedaJugador,
+        sexo,
         posicionJuegoUno,
         posicionJuegoDos,
       }

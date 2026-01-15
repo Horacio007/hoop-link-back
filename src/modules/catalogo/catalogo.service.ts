@@ -150,4 +150,26 @@ export class CatalogoService {
     }
   }
 
+  async getAllSexo(): Promise<ICatalogo[]> {
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+
+    try {
+      const estados: ICatalogo[] = await queryRunner.query(`
+          select
+            sexo_id as id,
+            nombre
+          from sexo
+        `);
+
+      return estados;
+    } catch (error) {
+      await queryRunner.release();
+      this.errorHandleService.errorHandle(error, ErrorMethods.BadRequestException);
+    }
+    finally {
+      await queryRunner.release();
+    }
+  }
+
 }

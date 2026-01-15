@@ -90,4 +90,10 @@ export class PerfilDto {
         message: ValidacionesDTOs({campo:'Quien eres', minLength: 1}, ValidationEnumsDTOs.minLength),
     })
     quienEres: string;
+
+    @IsOptional()
+    @IsNotEmpty({message: ValidacionesDTOs({campo: 'Sexo'}, ValidationEnumsDTOs.isNotEmpty)})
+    @ValidateNested()
+    @Type(() => CatalagoDTO)
+    sexo: CatalagoDTO;
 }

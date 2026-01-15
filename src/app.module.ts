@@ -30,6 +30,9 @@ import { ComentariosPerfilJugadorModule } from './modules/comentarios-perfil-jug
 import { VistaJugadorPerfil } from './entities/VistaJugadorPerfil';
 import { ComentariosPerfilJugador } from './entities/ComentariosPerfilJugador';
 import { FavoritosJugadoresCoachModule } from './modules/favoritos-jugadores-coach/favoritos-jugadores-coach.module';
+import { Sexo } from './entities/Sexo';
+import { InformacionPersonalCoach } from './entities/InformacionPersonalCoach';
+import { HistorialTrabajoCoach } from './entities/HistorialTrabajoCoach';
 
 @Module({
   imports: [
@@ -42,9 +45,9 @@ import { FavoritosJugadoresCoachModule } from './modules/favoritos-jugadores-coa
       username: process.env.DATABASE_USER,
       password: process.env.DATABASE_PASSWORD,
       // esto en teoria es para usar en azure <------------------
-      ssl: {
-          rejectUnauthorized: true,
-      },
+      // ssl: {
+      //     rejectUnauthorized: true,
+      // },
       autoLoadEntities: true,
       synchronize: true,
       entities: [
@@ -62,7 +65,10 @@ import { FavoritosJugadoresCoachModule } from './modules/favoritos-jugadores-coa
         PosicionJuego,
         AuditLog,
         VistaJugadorPerfil,
-        ComentariosPerfilJugador
+        ComentariosPerfilJugador,
+        Sexo,
+        InformacionPersonalCoach,
+        HistorialTrabajoCoach
       ]
     }),
     AuthModule,
