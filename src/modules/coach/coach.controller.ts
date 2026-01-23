@@ -1,14 +1,21 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, UploadedFile, UseInterceptors } from '@nestjs/common';
 import { CoachService } from './coach.service';
 import { CreateCoachDto } from './dto/create-coach.dto';
 import { UpdateCoachDto } from './dto/update-coach.dto';
 import { AccessTokenGuard } from '../auth/guard/auth/access-token.guard';
 import { User } from '../../common/decorators/user.decorator';
 import { JwtPayload } from '../auth/interfaces/jwt-payload.interface';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { plainToInstance } from 'class-transformer';
+import { validateOrReject } from 'class-validator';
+import { ErrorMethods } from '../../common/error/enum/common.error-handle.enum';
+import { IResponse } from '../../common/interfaces';
+import { UpsertInformacionPersonalDto } from './dto/upsert-informacion-personal.dto';
+import { ErrorHandleService } from '../../common/error/services/common.error-handle.service';
 
 @Controller('coach')
 export class CoachController {
-  constructor(private readonly coachService: CoachService) {}
+  constructor(private readonly coachService: CoachService, private readonly _errorService: ErrorHandleService) {}
 
   @Get('list-all-jugadores')
   @UseGuards(AccessTokenGuard)
@@ -45,4 +52,32 @@ export class CoachController {
   async getTotalFavoritosPerfil(@User() user: JwtPayload,) {
     return await this.coachService.getTotalFavoritosPerfil(+user.id);
   }
+
+  @Post('save')
+  @UseGuards(AccessTokenGuard) 
+  @UseInterceptors(FileInterceptor('fotoPerfil'))
+  async saveInformacionPersonal(
+    @UploadedFile() fotoPerfil: Express.Multer.File,
+    @Body('datos') datosJson: string,
+    @User() user: JwtPayload
+  ): Promise<IResponse<any>> {
+    try {
+        console.log(user);
+      // Convertir string JSON a objeto
+      let dto: UpsertInformacionPersonalDto;
+      dto = JSON.parse(datosJson);
+  
+      // Convertir plano a instancia con decoradores
+      const dtoInstance = plainToInstance(UpsertInformacionPersonalDto, dto);
+  
+      // Validar manualmente
+      await validateOrReject(dtoInstance);
+          
+      return this.coachService.save(+user.id, dto, fotoPerfil);
+    } catch (error) {
+      this._errorService.errorHandle(error, ErrorMethods.BadRequestException);
+    }
+    
+  }
+
 }

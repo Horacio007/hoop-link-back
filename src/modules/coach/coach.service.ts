@@ -1,6 +1,6 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { InformacionPersonal } from '../../entities/InformacionPersonal';
 import { CloudinaryService } from '../../common/cloudinary/services/cloudinary.service';
 import { ErrorHandleService } from '../../common/error/services/common.error-handle.service';
@@ -13,6 +13,13 @@ import { IListadoJugadores } from './interfaces/listado-jugadores.interface';
 import { VistaJugadorPerfilService } from '../vista-jugador-perfil/vista-jugador-perfil.service';
 import { InformacionPersonalService } from '../informacion-personal/informacion-personal.service';
 import { FavoritosJugadoresCoachService } from '../favoritos-jugadores-coach/favoritos-jugadores-coach.service';
+import { UpsertInformacionPersonalDto } from './dto/upsert-informacion-personal.dto';
+import { InformacionPersonalCoach } from '../../entities/InformacionPersonalCoach';
+import { UploadApiResponse } from 'cloudinary';
+import { RoutesPathsClodudinary } from '../../common/cloudinary/constants/route-paths.const';
+import { Ficheros } from '../../entities/Ficheros';
+import { AuditLogService } from '../audit-log/audit-log.service';
+import { HistorialEntrenadoresInformacionPersonalService } from '../historial-entrenadores-informacion-personal/historial-entrenadores-informacion-personal.service';
 
 @Injectable()
 export class CoachService {
@@ -27,6 +34,9 @@ export class CoachService {
     private readonly _vistaJugadorPerfilService: VistaJugadorPerfilService,
     private readonly _informacionPersonalService: InformacionPersonalService,
     private readonly _favoritosJugadoresCoachService: FavoritosJugadoresCoachService,
+    private readonly _dataSource: DataSource,
+    private readonly _auditLogService: AuditLogService,
+    private readonly _historialEntrenadoresService: HistorialEntrenadoresInformacionPersonalService
   ) { }
 //#endregion
 
@@ -361,6 +371,120 @@ export class CoachService {
       return response;
     } catch (error) {
       this._errorService.errorHandle(error, ErrorMethods.BadRequestException);
+    }
+  }
+
+  async save(usuarioId:number, dto: UpsertInformacionPersonalDto, fotoPerfil?: Express.Multer.File) {
+    const queryRunner = this._dataSource.createQueryRunner();
+
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+    const infoRepo = queryRunner.manager.getRepository(InformacionPersonalCoach);
+
+    try {
+      let fotoPerfilResponse: UploadApiResponse;
+      let ficheroFotoPerfil: Ficheros;
+
+      const existing = await infoRepo.findOneBy({ coachId: usuarioId });
+
+      const datosAntes = existing ? { ...existing } : null;
+
+      // primero guardo foto perfil
+      if (fotoPerfil) {
+        fotoPerfilResponse = await this._cloudinaryService.uploadFile(fotoPerfil, RoutesPathsClodudinary.IMAGEN_PERFIL);
+        ficheroFotoPerfil = await this._ficherosService.uploadFichero(usuarioId, fotoPerfilResponse, existing.fotoPerfilId ?? 0, RoutesPathsClodudinary.IMAGEN_PERFIL, queryRunner.manager);
+      }
+      
+      if (existing) {
+        // primero hago patch del perfil
+        for (const key in dto) {
+          if (dto[key] !== undefined) {
+            existing[key] = dto[key];
+          }
+        }
+
+        if (ficheroFotoPerfil !== undefined) {
+          existing.fotoPerfilId = ficheroFotoPerfil.ficheroId;
+        }
+
+        // actualizo experiencia
+        const { historialTrabajoCoaches } = dto;
+
+        for (const key in historialTrabajoCoaches) {
+          if (historialTrabajoCoaches[key] !== undefined) {
+            existing[key] = historialTrabajoCoaches[key];
+          }
+        }
+
+          // almaceno si existe historial de eventos
+        if (historialTrabajoCoaches.length > 0) {
+          await this._historialEntrenadoresService.delete(existing.informacionPersonalCoachId, queryRunner.manager);
+          await this._historialEntrenadoresService.insert(existing.informacionPersonalCoachId, historialTrabajoCoaches, queryRunner.manager);
+        }
+        
+        existing.fechaEdicion = new Date();
+        existing.usuarioEdicion = usuarioId;
+
+        console.log('antres de cambios', existing);
+        
+        
+        await infoRepo.save(existing);
+
+        await this._auditLogService.update(queryRunner, {
+          tableName: "informacion_personal_coach",
+          id: existing.informacionPersonalCoachId,
+          before: datosAntes,
+          after: existing,
+          user: usuarioId,
+          ip: undefined
+        });
+
+      } else {
+        // nuevo
+        console.log('llegue al insert de informacion personal coach', ficheroFotoPerfil);
+        const { historialTrabajoCoaches } = dto;
+        const newInfoPersonal = infoRepo.create({
+          coachId: usuarioId,
+          fotoPerfilId: ficheroFotoPerfil?.ficheroId ?? null,
+          trabajoActual: dto.trabajoActual,
+          personalidad: dto.personalidad,
+          valores: dto.valores,
+          objetivos: dto.objetivos,
+          antiguedad: +dto.antiguedad,
+          usuarioCreacion: usuarioId
+        });
+      
+        await infoRepo.create(newInfoPersonal);
+        const savedInfo = await infoRepo.save(newInfoPersonal);
+
+        // almaceno si existe historial de eventos
+        if (historialTrabajoCoaches.length > 0) {
+          await this._historialEntrenadoresService.insert(savedInfo.informacionPersonalCoachId, historialTrabajoCoaches, queryRunner.manager);
+        }
+
+        // Insert audit log
+        await this._auditLogService.insert(queryRunner, {
+          tableName: "informacion_personal_coach",
+          id: savedInfo.informacionPersonalCoachId,
+          after: savedInfo,
+          user: usuarioId,
+          ip: undefined
+        });
+      }
+
+      await queryRunner.commitTransaction();
+
+      const response:IResponse<any> = {
+        statusCode: HttpStatus.CREATED,
+        mensaje: 'Información actualizada.',
+      }
+  
+      return response;
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      this._errorService.errorHandle(error, ErrorMethods.BadRequestException);
+    } finally {
+      await queryRunner.release();
     }
   }
 

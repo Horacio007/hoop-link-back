@@ -10,6 +10,7 @@ import {
 import { Estatus } from "./Estatus";
 import { Usuario } from "./Usuario";
 import { InformacionPersonal } from "./InformacionPersonal";
+import { InformacionPersonalCoach } from "./InformacionPersonalCoach";
 
 @Index("FK_ficheros_usuario", ["usuarioId"], {})
 @Index("FK_ficheros_estatus", ["estatusId"], {})
@@ -97,4 +98,10 @@ export class Ficheros {
     (informacionPersonal) => informacionPersonal.videoTirando
   )
   informacionPersonals6: InformacionPersonal[];
+
+  @OneToMany(
+    () => InformacionPersonalCoach,
+    (informacionPersonalCoach) => informacionPersonalCoach.fotoPerfil
+  )
+  informacionPersonalCoaches: InformacionPersonalCoach[];
 }

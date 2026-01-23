@@ -9,8 +9,10 @@ import {
 } from "typeorm";
 import { HistorialTrabajoCoach } from "./HistorialTrabajoCoach";
 import { Usuario } from "./Usuario";
+import { Ficheros } from "./Ficheros";
 
 @Index("FK_informacion_personoal_coach_usuario", ["coachId"], {})
+@Index("FK_informacion_personal_coach_ficheros", ["fotoPerfilId"], {})
 @Entity("informacion_personal_coach", { schema: "hoop-link" })
 export class InformacionPersonalCoach {
   @PrimaryGeneratedColumn({
@@ -21,6 +23,9 @@ export class InformacionPersonalCoach {
 
   @Column("int", { name: "coach_id", default: () => "'0'" })
   coachId: number;
+
+  @Column("int", { name: "foto_perfil_id", nullable: true })
+  fotoPerfilId: number | null;
 
   @Column("varchar", {
     name: "trabajo_actual",
@@ -80,4 +85,12 @@ export class InformacionPersonalCoach {
   })
   @JoinColumn([{ name: "coach_id", referencedColumnName: "usuarioId" }])
   coach: Usuario;
+
+  @ManyToOne(
+    () => Ficheros,
+    (ficheros) => ficheros.informacionPersonalCoaches,
+    { onDelete: "NO ACTION", onUpdate: "NO ACTION" }
+  )
+  @JoinColumn([{ name: "foto_perfil_id", referencedColumnName: "ficheroId" }])
+  fotoPerfil: Ficheros;
 }
