@@ -10,10 +10,10 @@ import {
 import { HistorialEntrenadoresInformacionPersonal } from "./HistorialEntrenadoresInformacionPersonal";
 import { HistorialEquiposInformacionPersonal } from "./HistorialEquiposInformacionPersonal";
 import { Ficheros } from "./Ficheros";
+import { Sexo } from "./Sexo";
 import { EstatusBusquedaJugador } from "./EstatusBusquedaJugador";
 import { PosicionJuego } from "./PosicionJuego";
 import { Usuario } from "./Usuario";
-import { Sexo } from "./Sexo";
 import { LogrosClaveInformacionPersonal } from "./LogrosClaveInformacionPersonal";
 
 @Index("FK_informacion_personal_usuario", ["usuarioId"], {})
@@ -62,6 +62,12 @@ export class InformacionPersonal {
 
   @Column("float", { name: "largo_brazo", nullable: true, precision: 12 })
   largoBrazo: number | null;
+
+  @Column("float", { name: "apertura_brazo", nullable: true, precision: 12 })
+  aperturaBrazo: number | null;
+
+  @Column("float", { name: "alcance_maximo", nullable: true, precision: 12 })
+  alcanceMaximo: number | null;
 
   @Column("varchar", { name: "quien_eres", nullable: true, length: 500 })
   quienEres: string | null;
@@ -279,6 +285,13 @@ export class InformacionPersonal {
   @JoinColumn([{ name: "video_jugando_id", referencedColumnName: "ficheroId" }])
   videoJugando: Ficheros;
 
+  @ManyToOne(() => Sexo, (sexo) => sexo.informacionPersonals, {
+    onDelete: "NO ACTION",
+    onUpdate: "NO ACTION",
+  })
+  @JoinColumn([{ name: "sexo_id", referencedColumnName: "sexoId" }])
+  sexo: Sexo;
+
   @ManyToOne(() => Ficheros, (ficheros) => ficheros.informacionPersonals2, {
     onDelete: "NO ACTION",
     onUpdate: "NO ACTION",
@@ -355,13 +368,6 @@ export class InformacionPersonal {
   })
   @JoinColumn([{ name: "usuario_id", referencedColumnName: "usuarioId" }])
   usuario: Usuario;
-
-  @ManyToOne(() => Sexo, (sexo) => sexo.informacionPersonals, {
-    onDelete: "NO ACTION",
-    onUpdate: "NO ACTION",
-  })
-  @JoinColumn([{ name: "sexo_id", referencedColumnName: "sexoId" }])
-  sexo: Sexo;
 
   @OneToMany(
     () => LogrosClaveInformacionPersonal,

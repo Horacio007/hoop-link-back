@@ -80,6 +80,30 @@ export class PerfilDto {
         message: ValidacionesDTOs({ campo: 'Largo del brazo', minLength: 1 }, ValidationEnumsDTOs.min),
     })
     largoBrazo: number;
+
+    @IsOptional()
+    @IsNumber({},{
+        message: ValidacionesDTOs({campo: 'Aperetur del brazo'}, ValidationEnumsDTOs.max)
+    })
+    @IsPositive({
+        message: ValidacionesDTOs({campo: 'Aperetur del brazo'}, ValidationEnumsDTOs.isPositive)
+    })
+    @Min(1, {
+        message: ValidacionesDTOs({ campo: 'Aperetur del brazo', minLength: 1 }, ValidationEnumsDTOs.min),
+    })
+    aperturaBrazo: number;
+
+    @IsOptional()
+    @IsNumber({},{
+        message: ValidacionesDTOs({campo: 'Alcance maximo'}, ValidationEnumsDTOs.max)
+    })
+    @IsPositive({
+        message: ValidacionesDTOs({campo: 'Alcance maximo'}, ValidationEnumsDTOs.isPositive)
+    })
+    @Min(1, {
+        message: ValidacionesDTOs({ campo: 'Alcance maximo', minLength: 1 }, ValidationEnumsDTOs.min),
+    })
+    alcanceMaximo: number;
     
     @IsOptional()
     @Transform(({ value }) => (typeof value === 'string' ? value.trim() : value))

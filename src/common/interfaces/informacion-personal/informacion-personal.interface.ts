@@ -12,6 +12,8 @@ export interface IInformacionPersonal {
     sexo: ICatalogo,
     medidaMano: number,
     largoBrazo: number,
+    aperturaBrazo: number,
+    alcanceMaximo: number,
     quienEres: string,
     fotoPerfilPublicUrl: string,
     alturaSaltoVertical?: number,

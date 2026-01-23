@@ -45,7 +45,10 @@ export class InformacionPersonalCoach {
   @Column("int", { name: "antiguedad", default: () => "'0'" })
   antiguedad: number;
 
-  @Column("datetime", { name: "fechaCreacion", default: () => "'now()'" })
+  @Column("datetime", {
+    name: "fechaCreacion",
+    default: () => "CURRENT_TIMESTAMP",
+  })
   fechaCreacion: Date;
 
   @Column("int", {
