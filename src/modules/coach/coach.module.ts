@@ -10,6 +10,9 @@ import { AuthModule } from '../auth/auth.module';
 import { VistaJugadorPerfilModule } from '../vista-jugador-perfil/vista-jugador-perfil.module';
 import { InformacionPersonalModule } from '../informacion-personal/informacion-personal.module';
 import { FavoritosJugadoresCoachModule } from '../favoritos-jugadores-coach/favoritos-jugadores-coach.module';
+import { AuditLogModule } from '../audit-log/audit-log.module';
+import { HistorialTrabajosCoachServiceModule } from '../historial-trabajos-coach-service/historial-trabajos-coach-service.module';
+import { InformacionPersonalCoach } from '../../entities/InformacionPersonalCoach';
 
 @Module({
   controllers: [CoachController],
@@ -18,13 +21,18 @@ import { FavoritosJugadoresCoachModule } from '../favoritos-jugadores-coach/favo
     TypeOrmModule.forFeature([
       InformacionPersonal,
     ]),
+    TypeOrmModule.forFeature([
+      InformacionPersonalCoach,
+    ]),
     FicherosModule,
     CatalogoModule,
     CommonModule,
     AuthModule,
     VistaJugadorPerfilModule,
     InformacionPersonalModule,
-    FavoritosJugadoresCoachModule
+    FavoritosJugadoresCoachModule,
+    AuditLogModule,
+    HistorialTrabajosCoachServiceModule
   ]
 })
 export class CoachModule {}

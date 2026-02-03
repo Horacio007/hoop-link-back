@@ -6,6 +6,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { CommonModule } from '../../common/common.module';
 import { AuthModule } from '../auth/auth.module';
 import { InformacionPersonalModule } from '../informacion-personal/informacion-personal.module';
+import { FicherosModule } from '../ficheros/ficheros.module';
 
 @Module({
   controllers: [ComentariosPerfilJugadorController],
@@ -16,7 +17,8 @@ import { InformacionPersonalModule } from '../informacion-personal/informacion-p
     ]),
     CommonModule,
     AuthModule,
-    InformacionPersonalModule
+    InformacionPersonalModule,
+    FicherosModule
   ]
 })
 export class ComentariosPerfilJugadorModule {}

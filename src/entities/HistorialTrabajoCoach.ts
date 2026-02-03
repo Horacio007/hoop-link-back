@@ -1,10 +1,17 @@
-import { Column, Entity, Index, JoinColumn, ManyToOne } from "typeorm";
+import {
+  Column,
+  Entity,
+  Index,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from "typeorm";
 import { InformacionPersonalCoach } from "./InformacionPersonalCoach";
 
 @Index("FK_historial_trabajo_coach", ["informacionPersonalCoachId"], {})
 @Entity("historial_trabajo_coach", { schema: "hoop-link" })
 export class HistorialTrabajoCoach {
-  @Column("int", { primary: true, name: "historial_trabajo_coach" })
+  @PrimaryGeneratedColumn({ type: "int", name: "historial_trabajo_coach" })
   historialTrabajoCoach: number;
 
   @Column("int", { name: "informacion_personal_coach_id" })

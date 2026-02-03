@@ -1,6 +1,6 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DataSource, Repository } from 'typeorm';
+import { DataSource, MetadataAlreadyExistsError, Repository } from 'typeorm';
 import { InformacionPersonal } from '../../entities/InformacionPersonal';
 import { CloudinaryService } from '../../common/cloudinary/services/cloudinary.service';
 import { ErrorHandleService } from '../../common/error/services/common.error-handle.service';
@@ -19,7 +19,8 @@ import { UploadApiResponse } from 'cloudinary';
 import { RoutesPathsClodudinary } from '../../common/cloudinary/constants/route-paths.const';
 import { Ficheros } from '../../entities/Ficheros';
 import { AuditLogService } from '../audit-log/audit-log.service';
-import { HistorialEntrenadoresInformacionPersonalService } from '../historial-entrenadores-informacion-personal/historial-entrenadores-informacion-personal.service';
+import { HistorialTrabajosCoachService } from '../historial-trabajos-coach-service/historial-trabajos-coach-service.service';
+import { IInformacionPersonalCoach } from './interfaces/informacion-personal.interface';
 
 @Injectable()
 export class CoachService {
@@ -27,6 +28,8 @@ export class CoachService {
   constructor(
     @InjectRepository(InformacionPersonal)
     private readonly _informacionPersonalRepository:Repository<InformacionPersonal>,
+    @InjectRepository(InformacionPersonalCoach)
+    private readonly _informacionPersonalCoachRepository:Repository<InformacionPersonalCoach>,
     private readonly _ficherosService: FicherosService,
     private readonly _errorService: ErrorHandleService,
     private readonly _cloudinaryService: CloudinaryService,
@@ -36,7 +39,7 @@ export class CoachService {
     private readonly _favoritosJugadoresCoachService: FavoritosJugadoresCoachService,
     private readonly _dataSource: DataSource,
     private readonly _auditLogService: AuditLogService,
-    private readonly _historialEntrenadoresService: HistorialEntrenadoresInformacionPersonalService
+    private readonly _historialEntrenadoresService: HistorialTrabajosCoachService
   ) { }
 //#endregion
 
@@ -391,6 +394,7 @@ export class CoachService {
 
       // primero guardo foto perfil
       if (fotoPerfil) {
+        console.log('llego con foto', fotoPerfil)
         fotoPerfilResponse = await this._cloudinaryService.uploadFile(fotoPerfil, RoutesPathsClodudinary.IMAGEN_PERFIL);
         ficheroFotoPerfil = await this._ficherosService.uploadFichero(usuarioId, fotoPerfilResponse, existing.fotoPerfilId ?? 0, RoutesPathsClodudinary.IMAGEN_PERFIL, queryRunner.manager);
       }
@@ -408,11 +412,12 @@ export class CoachService {
         }
 
         // actualizo experiencia
-        const { historialTrabajoCoaches } = dto;
+        const { historialTrabajoCoaches, ...restDto } = dto;
 
-        for (const key in historialTrabajoCoaches) {
-          if (historialTrabajoCoaches[key] !== undefined) {
-            existing[key] = historialTrabajoCoaches[key];
+        // patch SOLO campos simples
+        for (const key in restDto) {
+          if (restDto[key] !== undefined) {
+            existing[key] = restDto[key];
           }
         }
 
@@ -421,12 +426,28 @@ export class CoachService {
           await this._historialEntrenadoresService.delete(existing.informacionPersonalCoachId, queryRunner.manager);
           await this._historialEntrenadoresService.insert(existing.informacionPersonalCoachId, historialTrabajoCoaches, queryRunner.manager);
         }
+
+        const toLogService = existing;
+
+        existing.historialTrabajoCoaches = undefined;
         
         existing.fechaEdicion = new Date();
         existing.usuarioEdicion = usuarioId;
 
         console.log('antres de cambios', existing);
-        
+
+        // const toUpdate: InformacionPersonalCoach = {
+        //   informacionPersonalCoachId: existing.informacionPersonalCoachId,
+        //   coachId: existing.coachId,
+        //   fotoPerfilId: existing.fotoPerfilId ?? null,
+        //   trabajoActual: existing.trabajoActual,
+        //   personalidad: existing.personalidad,
+        //   valores: existing.valores,
+        //   objetivos: existing.objetivos,
+        //   antiguedad: existing.antiguedad,
+        //   fechaEdicion: existing.fechaEdicion,
+        //   usuarioEdicion: existing.usuarioEdicion
+        // };
         
         await infoRepo.save(existing);
 
@@ -435,7 +456,7 @@ export class CoachService {
           id: existing.informacionPersonalCoachId,
           before: datosAntes,
           after: existing,
-          user: usuarioId,
+          user: toLogService,
           ip: undefined
         });
 
@@ -485,6 +506,79 @@ export class CoachService {
       this._errorService.errorHandle(error, ErrorMethods.BadRequestException);
     } finally {
       await queryRunner.release();
+    }
+  }
+
+  async getInformacionPersonalIdByUsuarioId(usuarioId: number) {
+    try {
+      const informacionPersonalId = await this._informacionPersonalCoachRepository.findOne({
+        where: {coachId: usuarioId},
+        select: {
+          informacionPersonalCoachId: true
+        }
+      });
+      console.log(informacionPersonalId);
+      return informacionPersonalId.informacionPersonalCoachId;
+    } catch (error) {
+      this._errorService.errorHandle(error, ErrorMethods.BadRequestException);
+    }
+  }
+
+  async getInformacionPersonal(usuarioId: number) {
+    try {
+
+      const informacionPersonalCoachId = await this.getInformacionPersonalIdByUsuarioId(usuarioId);
+
+      // primero la tabla general de informacion personal
+      const infoPersonal = await this._informacionPersonalCoachRepository.findOne({
+        where: {informacionPersonalCoachId: informacionPersonalCoachId},
+        select: {
+          fotoPerfilId: true,
+          coachId: true,
+          trabajoActual: true,
+          personalidad: true,
+          valores: true,
+          objetivos: true,
+          antiguedad: true
+        }
+      });
+
+      // si no existe es primera ves y lo saca
+      if (!infoPersonal) {
+        const response:IResponse<undefined> = {
+          statusCode: HttpStatus.OK,
+          mensaje: 'Usuario sin información personal.',
+          data: undefined
+        }
+        
+        return response;
+      }
+      
+      
+      // obtengo los historial de eventos, entrenadores y logros
+      const historialEquipos = await this._historialEntrenadoresService.getAll(infoPersonal.informacionPersonalCoachId);
+
+      // recupero la foto de perfil
+      const fotoPerfilId = await this._ficherosService.getPublicIdByFicheroId(infoPersonal.fotoPerfilId);
+      const fotoPerfilPublicId = await this._cloudinaryService.getImage(fotoPerfilId);
+
+      const sendInfoPersonal: IInformacionPersonalCoach = {
+        ...infoPersonal,
+        fotoPerfilPublicUrl: fotoPerfilPublicId,
+        historialTrabajoCoaches: historialEquipos
+      }
+
+      const response:IResponse<IInformacionPersonalCoach> = {
+        statusCode: HttpStatus.OK,
+        mensaje: 'Información obtenida.',
+        data: {
+          ...sendInfoPersonal,
+        }
+      }
+      // console.log(response);
+      return response;
+    } catch (error) {
+      this._errorService.errorHandle(error, ErrorMethods.BadRequestException);
     }
   }
 

@@ -33,6 +33,7 @@ import { FavoritosJugadoresCoachModule } from './modules/favoritos-jugadores-coa
 import { Sexo } from './entities/Sexo';
 import { InformacionPersonalCoach } from './entities/InformacionPersonalCoach';
 import { HistorialTrabajoCoach } from './entities/HistorialTrabajoCoach';
+import { HistorialTrabajosCoachServiceModule } from './modules/historial-trabajos-coach-service/historial-trabajos-coach-service.module';
 
 @Module({
   imports: [
@@ -85,6 +86,7 @@ import { HistorialTrabajoCoach } from './entities/HistorialTrabajoCoach';
     VistaJugadorPerfilModule,
     ComentariosPerfilJugadorModule,
     FavoritosJugadoresCoachModule,
+    HistorialTrabajosCoachServiceModule,
   ],
   controllers: [],
   providers: [],

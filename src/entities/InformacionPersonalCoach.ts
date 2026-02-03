@@ -56,18 +56,10 @@ export class InformacionPersonalCoach {
   })
   fechaCreacion: Date;
 
-  @Column("int", {
-    name: "usuarioCreacion",
-    nullable: true,
-    default: () => "'0'",
-  })
+  @Column("int", { name: "usuarioCreacion", nullable: true })
   usuarioCreacion: number | null;
 
-  @Column("datetime", {
-    name: "fechaEdicion",
-    nullable: true,
-    default: () => "'0'",
-  })
+  @Column("datetime", { name: "fechaEdicion", nullable: true })
   fechaEdicion: Date | null;
 
   @Column("int", { name: "usuarioEdicion", nullable: true })

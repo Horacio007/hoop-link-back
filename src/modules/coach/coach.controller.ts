@@ -80,4 +80,10 @@ export class CoachController {
     
   }
 
+  @Get('')
+  @UseGuards(AccessTokenGuard)
+  async getInformacionPersonal(@User() user: JwtPayload) {
+    return await this.coachService.getInformacionPersonal(+user.id);
+  }
+
 }
