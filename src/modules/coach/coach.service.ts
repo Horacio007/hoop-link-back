@@ -21,6 +21,8 @@ import { Ficheros } from '../../entities/Ficheros';
 import { AuditLogService } from '../audit-log/audit-log.service';
 import { HistorialTrabajosCoachService } from '../historial-trabajos-coach-service/historial-trabajos-coach-service.service';
 import { IInformacionPersonalCoach } from './interfaces/informacion-personal.interface';
+import { MailService } from '../../common/mail/services/common.mail.service';
+import { IRequestEmail } from '../../common/mail/interfaces';
 
 @Injectable()
 export class CoachService {
@@ -39,7 +41,8 @@ export class CoachService {
     private readonly _favoritosJugadoresCoachService: FavoritosJugadoresCoachService,
     private readonly _dataSource: DataSource,
     private readonly _auditLogService: AuditLogService,
-    private readonly _historialEntrenadoresService: HistorialTrabajosCoachService
+    private readonly _historialEntrenadoresService: HistorialTrabajosCoachService,
+    private readonly _mailService:MailService
   ) { }
 //#endregion
 
@@ -91,7 +94,7 @@ export class CoachService {
       // 5. Ejecutar la consulta
       .getRawMany();
 
-      console.log(infoPersonalConUsuario);
+      // console.log(infoPersonalConUsuario);
 
       let nuevaInfo: IListadoJugadores[] = [];
 
@@ -187,6 +190,9 @@ export class CoachService {
       const existe: boolean = await this._vistaJugadorPerfilService.existeVista(usuarioId, jugadorId);
       if (!existe) {
         await this._vistaJugadorPerfilService.insertaVista(usuarioId, jugadorId);
+        const correo:string = await this.getCorreoJugadorByUsuarioId(jugadorId);
+        await this._mailService.enviarCorreoAlguienVio(correo);
+
       }
 
     } catch (error) {
@@ -204,9 +210,20 @@ export class CoachService {
       if (existe) {
         console.log('llego al if para ACTUALIZAR la favorito');
         await this._favoritosJugadoresCoachService.updateFavorito(usuarioId, jugadorId);
+
+        const jugadorFavoritoo = await this._favoritosJugadoresCoachService.getFavorito(usuarioId, jugadorId);
+        const esInteresado = (jugadorFavoritoo.interesado[0] == 1);
+        if (esInteresado) {
+          const correo:string = await this.getCorreoJugadorByUsuarioId(jugadorId);
+          await this._mailService.enviarCorreoAgregadoFaavorito(correo);
+        }
+
         mensaje = 'Jugador eliminado de favoritos.';
       } else {
         await this._favoritosJugadoresCoachService.insertFavorito(usuarioId, jugadorId);
+        const correo:string = await this.getCorreoJugadorByUsuarioId(jugadorId);
+        await this._mailService.enviarCorreoAgregadoFaavorito(correo);
+
         mensaje = 'Jugador agregado a favoritos.';
       }
 
@@ -268,7 +285,7 @@ export class CoachService {
       // 5. Ejecutar la consulta
       .getRawMany();
 
-      console.log(infoPersonalConUsuario);
+      // console.log(infoPersonalConUsuario);
 
       let nuevaInfo: IListadoJugadores[] = [];
 
@@ -394,7 +411,7 @@ export class CoachService {
 
       // primero guardo foto perfil
       if (fotoPerfil) {
-        console.log('llego con foto', fotoPerfil)
+        // console.log('llego con foto', fotoPerfil)
         fotoPerfilResponse = await this._cloudinaryService.uploadFile(fotoPerfil, RoutesPathsClodudinary.IMAGEN_PERFIL);
         ficheroFotoPerfil = await this._ficherosService.uploadFichero(usuarioId, fotoPerfilResponse, existing.fotoPerfilId ?? 0, RoutesPathsClodudinary.IMAGEN_PERFIL, queryRunner.manager);
       }
@@ -434,7 +451,7 @@ export class CoachService {
         existing.fechaEdicion = new Date();
         existing.usuarioEdicion = usuarioId;
 
-        console.log('antres de cambios', existing);
+        // console.log('antres de cambios', existing);
 
         // const toUpdate: InformacionPersonalCoach = {
         //   informacionPersonalCoachId: existing.informacionPersonalCoachId,
@@ -462,7 +479,7 @@ export class CoachService {
 
       } else {
         // nuevo
-        console.log('llegue al insert de informacion personal coach', ficheroFotoPerfil);
+        // console.log('llegue al insert de informacion personal coach', ficheroFotoPerfil);
         const { historialTrabajoCoaches } = dto;
         const newInfoPersonal = infoRepo.create({
           coachId: usuarioId,
@@ -517,7 +534,7 @@ export class CoachService {
           informacionPersonalCoachId: true
         }
       });
-      console.log(informacionPersonalId);
+      // console.log(informacionPersonalId);
       return informacionPersonalId.informacionPersonalCoachId;
     } catch (error) {
       this._errorService.errorHandle(error, ErrorMethods.BadRequestException);
@@ -579,6 +596,30 @@ export class CoachService {
       return response;
     } catch (error) {
       this._errorService.errorHandle(error, ErrorMethods.BadRequestException);
+    }
+  }
+
+  private async getCorreoJugadorByUsuarioId(usuarioId: number)
+  {
+    const queryRunner = this._dataSource.createQueryRunner();
+    await queryRunner.connect();
+
+    try {
+      const correo: string = await queryRunner.query(`
+          select
+            u.correo
+          from usuario u
+          where u.estatus_id = 1
+          and u.usuario_id = ${usuarioId}
+        `);
+        console.log(correo, usuarioId);
+      return correo[0]['correo'];
+    } catch (error) {
+      await queryRunner.release();
+      this._errorService.errorHandle(error, ErrorMethods.BadRequestException);
+    }
+    finally {
+      await queryRunner.release();
     }
   }
 

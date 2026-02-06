@@ -126,4 +126,27 @@ export class MailService {
       return this.sendEmail(requestEmail);
     }
 
+    async enviarCorreoAgregadoFaavorito(destinatario:string) {
+      const requestEmail:IRequestEmail = {
+        destinatario,
+        template: 'emails/favorite',
+        asunto: 'Eres el favorito de un entrenador',
+        tipoGif: 'favorite'
+      }
+
+      return this.sendEmail(requestEmail);
+    }
+
+    async enviarCorreoAlguienVio(destinatario:string) {
+
+      const requestEmail:IRequestEmail = {
+        destinatario,
+        template: 'emails/watch-perfil',
+        asunto: 'Alguien reviso tu perfil',
+        tipoGif: 'favorite'
+      }
+
+      return this.sendEmail(requestEmail);
+    }
+
 }
