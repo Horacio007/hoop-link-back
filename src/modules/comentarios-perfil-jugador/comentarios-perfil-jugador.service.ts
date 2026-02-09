@@ -11,6 +11,8 @@ import { InformacionPersonalService } from '../informacion-personal/informacion-
 import { IComentarioPerfilJugador } from './interfaces/comentario-perfil-jugador.interface';
 import { CloudinaryService } from '../../common/cloudinary/services/cloudinary.service';
 import { FicherosService } from '../ficheros/ficheros.service';
+import { HistorialTrabajosCoachService } from '../historial-trabajos-coach-service/historial-trabajos-coach-service.service';
+import { MailService } from '../../common/mail/services/common.mail.service';
 
 @Injectable()
 export class ComentariosPerfilJugadorService {
@@ -24,6 +26,7 @@ export class ComentariosPerfilJugadorService {
     private readonly dataSource:DataSource,
     private readonly _cloudinaryService: CloudinaryService,
     private readonly _ficherosService: FicherosService,
+    private readonly _mailService:MailService
   ) { }
 //#endregion
 
@@ -48,6 +51,17 @@ export class ComentariosPerfilJugadorService {
         usuarioCreacion: usuarioCreacionId
       });
 
+      if (createComentariosPerfilJugadorDto.autor === 1) // hay que mandar correo a los entrenadores
+      {
+        const listaCorreos = await this.getListadoCorreosByPerfilComentadoId(perfilComentado);
+        const nombreJugador = await this.getNombreJugador(perfilComentado);
+        await this._mailService.enviarCorreoAEntrenadoresComentarioDeJufgador(listaCorreos, nombreJugador);
+      }
+      else // mandar al jugador
+      {
+        const correoJugadoor = await this.getCorreoJugador(perfilComentado);
+        await this._mailService.enviarCorreoaJugadorPorCoach(correoJugadoor);
+      }
 
       const response:IResponse<any> = {
         statusCode: HttpStatus.CREATED,
@@ -57,6 +71,84 @@ export class ComentariosPerfilJugadorService {
       return response;
     } catch (error) {
       this._errorService.errorHandle(error, ErrorMethods.BadRequestException);
+    }
+  }
+
+  private async getListadoCorreosByPerfilComentadoId(perfilId: number)
+  {
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+
+    try {
+      const listadoCorreos = await queryRunner.query(`
+        SELECT
+        	uEntrenador.correo
+        FROM comentarios_perfil_jugador cpj
+        JOIN usuario u ON cpj.perfil_comentado_jugador_id=u.usuario_id
+        JOIN usuario uEntrenador ON cpj.autor_comentario_id=uEntrenador.usuario_id
+        WHERE u.estatus_id=1
+        AND cpj.autor = 0
+        AND cpj.perfil_comentado_jugador_id=${perfilId}
+        GROUP BY uEntrenador.correo
+
+      `);
+
+      const toEmails = listadoCorreos.map(r => r.correo);
+      console.log(toEmails);
+      return toEmails;
+    } catch (error) {
+      await queryRunner.release();
+      this._errorService.errorHandle(error, ErrorMethods.BadRequestException);
+    }
+    finally {
+      await queryRunner.release();
+    }
+  }
+
+  private async getNombreJugador(perfilId: number)
+  {
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+
+    try {
+      const nombre = await queryRunner.query(`
+       SELECT
+        	concat(u.nombre, ' ', u.a_paterno, ' ', u.a_materno) AS nombre
+        FROM informacion_personal ip
+        JOIN usuario u ON ip.usuario_id=u.usuario_id
+        WHERE u.usuario_id=${perfilId}
+      `);
+
+      return nombre[0]['nombre'];
+    } catch (error) {
+      await queryRunner.release();
+      this._errorService.errorHandle(error, ErrorMethods.BadRequestException);
+    }
+    finally {
+      await queryRunner.release();
+    }
+  }
+
+  private async getCorreoJugador(perfilId: number)
+  {
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+
+    try {
+      const nombre = await queryRunner.query(`
+        SELECT
+        	correo
+        FROM usuario
+        WHERE usuario_id=${perfilId}
+      `);
+
+      return nombre[0]['correo'];
+    } catch (error) {
+      await queryRunner.release();
+      this._errorService.errorHandle(error, ErrorMethods.BadRequestException);
+    }
+    finally {
+      await queryRunner.release();
     }
   }
 

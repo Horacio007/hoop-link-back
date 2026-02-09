@@ -1,5 +1,5 @@
 export interface IRequestEmail {
-    destinatario: string,
+    destinatario: string | string[],
     asunto: string,
     template: string,
     context?: any, 

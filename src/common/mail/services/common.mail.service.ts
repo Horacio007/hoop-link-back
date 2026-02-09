@@ -149,4 +149,31 @@ export class MailService {
       return this.sendEmail(requestEmail);
     }
 
+    async enviarCorreoAEntrenadoresComentarioDeJufgador(destinatario:string[], nombre: string) {
+
+      const requestEmail:IRequestEmail = {
+        destinatario,
+        template: 'emails/commnet',
+        asunto: 'Alguien dejo un comentario',
+        context: {
+          nombre
+        },
+        tipoGif: 'comment'
+      }
+
+      return this.sendEmail(requestEmail);
+    }
+
+    async enviarCorreoaJugadorPorCoach(destinatario:string) {
+
+      const requestEmail:IRequestEmail = {
+        destinatario,
+        template: 'emails/commnet-coach',
+        asunto: 'Alguien dejo un comentario',
+        tipoGif: 'comment'
+      }
+
+      return this.sendEmail(requestEmail);
+    }
+
 }
