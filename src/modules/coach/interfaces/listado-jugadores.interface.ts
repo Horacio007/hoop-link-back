@@ -11,6 +11,7 @@ export interface IListadoJugadores {
     manoJuego?: string ,
     posicionJuegoUno?: string ,
     posicionJuegoDos?: string ,
+    sexo?: string,
     estado: string,
     municipio: string,
     interesado: boolean

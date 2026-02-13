@@ -8,8 +8,8 @@ import {
 } from "typeorm";
 import { Usuario } from "./Usuario";
 
-@Index("favoritos_jugadores_coach_usuario_coach", ["coachId"], {})
 @Index("favoritos_jugadores_coach_usuario_jugador", ["jugadorId"], {})
+@Index("favoritos_jugadores_coach_usuario_coach", ["coachId"], {})
 @Entity("favoritos_jugadores_coach", { schema: "hoop-link" })
 export class FavoritosJugadoresCoach {
   @PrimaryGeneratedColumn({ type: "int", name: "favoritos_jugadores_coach_id" })
@@ -27,7 +27,10 @@ export class FavoritosJugadoresCoach {
   @Column("int", { name: "usuario_creacion" })
   usuarioCreacion: number;
 
-  @Column("datetime", { name: "fecha_creacion", default: () => "'now()'" })
+  @Column("datetime", {
+    name: "fecha_creacion",
+    default: () => "CURRENT_TIMESTAMP",
+  })
   fechaCreacion: Date;
 
   @Column("int", { name: "usuario_edicion", nullable: true })

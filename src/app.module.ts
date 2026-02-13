@@ -30,6 +30,10 @@ import { ComentariosPerfilJugadorModule } from './modules/comentarios-perfil-jug
 import { VistaJugadorPerfil } from './entities/VistaJugadorPerfil';
 import { ComentariosPerfilJugador } from './entities/ComentariosPerfilJugador';
 import { FavoritosJugadoresCoachModule } from './modules/favoritos-jugadores-coach/favoritos-jugadores-coach.module';
+import { Sexo } from './entities/Sexo';
+import { InformacionPersonalCoach } from './entities/InformacionPersonalCoach';
+import { HistorialTrabajoCoach } from './entities/HistorialTrabajoCoach';
+import { HistorialTrabajosCoachServiceModule } from './modules/historial-trabajos-coach-service/historial-trabajos-coach-service.module';
 
 @Module({
   imports: [
@@ -62,7 +66,10 @@ import { FavoritosJugadoresCoachModule } from './modules/favoritos-jugadores-coa
         PosicionJuego,
         AuditLog,
         VistaJugadorPerfil,
-        ComentariosPerfilJugador
+        ComentariosPerfilJugador,
+        Sexo,
+        InformacionPersonalCoach,
+        HistorialTrabajoCoach
       ]
     }),
     AuthModule,
@@ -79,6 +86,7 @@ import { FavoritosJugadoresCoachModule } from './modules/favoritos-jugadores-coa
     VistaJugadorPerfilModule,
     ComentariosPerfilJugadorModule,
     FavoritosJugadoresCoachModule,
+    HistorialTrabajosCoachServiceModule,
   ],
   controllers: [],
   providers: [],

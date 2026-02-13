@@ -5,4 +5,6 @@ export interface IComentarioPerfilJugador {
     fecha_creacion: Date;
     nombre_autor: string;
     nombre_perfil: string;
+    fotoPerfilPublicUrl: string | null;
+    autorId?: number | null
 }

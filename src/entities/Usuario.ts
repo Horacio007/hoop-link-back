@@ -12,6 +12,7 @@ import { ComentariosPerfilJugador } from "./ComentariosPerfilJugador";
 import { FavoritosJugadoresCoach } from "./FavoritosJugadoresCoach";
 import { Ficheros } from "./Ficheros";
 import { InformacionPersonal } from "./InformacionPersonal";
+import { InformacionPersonalCoach } from "./InformacionPersonalCoach";
 import { RefreshTokens } from "./RefreshTokens";
 import { Municipio } from "./Municipio";
 import { TipoUsuario } from "./TipoUsuario";
@@ -19,12 +20,12 @@ import { Estatus } from "./Estatus";
 import { VistaJugadorPerfil } from "./VistaJugadorPerfil";
 
 @Index("correo", ["correo"], { unique: true })
-@Index("FK_estatus_usuario", ["estatusId"], {})
-@Index("FK_municipio_usuario", ["municipioId"], {})
-@Index("FK_tipo_usuario_usuario", ["tipoUsuarioId"], {})
+@Index("telefono", ["telefono"], { unique: true })
 @Index("IDX_349ecb64acc4355db443ca17cb", ["correo"], { unique: true })
 @Index("IDX_dd13ecd2eec69592d312b79392", ["telefono"], { unique: true })
-@Index("telefono", ["telefono"], { unique: true })
+@Index("FK_estatus_usuario", ["estatusId"], {})
+@Index("FK_tipo_usuario_usuario", ["tipoUsuarioId"], {})
+@Index("FK_municipio_usuario", ["municipioId"], {})
 @Entity("usuario", { schema: "hoop-link" })
 export class Usuario {
   @PrimaryGeneratedColumn({ type: "int", name: "usuario_id" })
@@ -117,6 +118,12 @@ export class Usuario {
     (informacionPersonal) => informacionPersonal.usuario
   )
   informacionPersonals: InformacionPersonal[];
+
+  @OneToMany(
+    () => InformacionPersonalCoach,
+    (informacionPersonalCoach) => informacionPersonalCoach.coach
+  )
+  informacionPersonalCoaches: InformacionPersonalCoach[];
 
   @OneToMany(() => RefreshTokens, (refreshTokens) => refreshTokens.usuario)
   refreshTokens: RefreshTokens[];

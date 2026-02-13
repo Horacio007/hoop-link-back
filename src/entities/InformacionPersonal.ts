@@ -10,25 +10,27 @@ import {
 import { HistorialEntrenadoresInformacionPersonal } from "./HistorialEntrenadoresInformacionPersonal";
 import { HistorialEquiposInformacionPersonal } from "./HistorialEquiposInformacionPersonal";
 import { Ficheros } from "./Ficheros";
+import { Sexo } from "./Sexo";
 import { EstatusBusquedaJugador } from "./EstatusBusquedaJugador";
 import { PosicionJuego } from "./PosicionJuego";
 import { Usuario } from "./Usuario";
 import { LogrosClaveInformacionPersonal } from "./LogrosClaveInformacionPersonal";
 
-@Index("FK1_video_jugando_ficheros", ["videoJugandoId"], {})
+@Index("FK_informacion_personal_usuario", ["usuarioId"], {})
 @Index(
   "FK_informacion_personal_estatus_busqueda_jugador",
   ["estatusBusquedaJugadorId"],
   {}
 )
 @Index("FK_informacion_personal_foto_perfil_ficheros", ["fotoPerfilId"], {})
-@Index("FK_informacion_personal_usuario", ["usuarioId"], {})
-@Index("FK_posicion_juego_dos_id", ["posicionJuegoDosId"], {})
 @Index("FK_posicion_juego_uno_id", ["posicionJuegoUnoId"], {})
-@Index("FK_video_botando_ficheros", ["videoBotandoId"], {})
-@Index("FK_video_colada_ficheros", ["videoColadaId"], {})
-@Index("FK_video_entrenando_ficheros", ["videoEntrenandoId"], {})
+@Index("FK_posicion_juego_dos_id", ["posicionJuegoDosId"], {})
 @Index("FK_video_tirando_ficheros", ["videoTirandoId"], {})
+@Index("FK_video_entrenando_ficheros", ["videoEntrenandoId"], {})
+@Index("FK_video_colada_ficheros", ["videoColadaId"], {})
+@Index("FK_video_botando_ficheros", ["videoBotandoId"], {})
+@Index("FK1_video_jugando_ficheros", ["videoJugandoId"], {})
+@Index("FK_informacion_personal_sexo", ["sexoId"], {})
 @Entity("informacion_personal", { schema: "hoop-link" })
 export class InformacionPersonal {
   @PrimaryGeneratedColumn({ type: "int", name: "informacion_personal_id" })
@@ -42,6 +44,9 @@ export class InformacionPersonal {
 
   @Column("varchar", { name: "alias", nullable: true, length: 50 })
   alias: string | null;
+
+  @Column("int", { name: "sexo_id", nullable: true })
+  sexoId: number | null;
 
   @Column("float", { name: "altura", nullable: true, precision: 12 })
   altura: number | null;
@@ -57,6 +62,12 @@ export class InformacionPersonal {
 
   @Column("float", { name: "largo_brazo", nullable: true, precision: 12 })
   largoBrazo: number | null;
+
+  @Column("float", { name: "apertura_brazo", nullable: true, precision: 12 })
+  aperturaBrazo: number | null;
+
+  @Column("float", { name: "alcance_maximo", nullable: true, precision: 12 })
+  alcanceMaximo: number | null;
 
   @Column("varchar", { name: "quien_eres", nullable: true, length: 500 })
   quienEres: string | null;
@@ -273,6 +284,13 @@ export class InformacionPersonal {
   })
   @JoinColumn([{ name: "video_jugando_id", referencedColumnName: "ficheroId" }])
   videoJugando: Ficheros;
+
+  @ManyToOne(() => Sexo, (sexo) => sexo.informacionPersonals, {
+    onDelete: "NO ACTION",
+    onUpdate: "NO ACTION",
+  })
+  @JoinColumn([{ name: "sexo_id", referencedColumnName: "sexoId" }])
+  sexo: Sexo;
 
   @ManyToOne(() => Ficheros, (ficheros) => ficheros.informacionPersonals2, {
     onDelete: "NO ACTION",

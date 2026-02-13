@@ -1,6 +1,6 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { DataSource, MetadataAlreadyExistsError, Repository } from 'typeorm';
 import { InformacionPersonal } from '../../entities/InformacionPersonal';
 import { CloudinaryService } from '../../common/cloudinary/services/cloudinary.service';
 import { ErrorHandleService } from '../../common/error/services/common.error-handle.service';
@@ -13,6 +13,16 @@ import { IListadoJugadores } from './interfaces/listado-jugadores.interface';
 import { VistaJugadorPerfilService } from '../vista-jugador-perfil/vista-jugador-perfil.service';
 import { InformacionPersonalService } from '../informacion-personal/informacion-personal.service';
 import { FavoritosJugadoresCoachService } from '../favoritos-jugadores-coach/favoritos-jugadores-coach.service';
+import { UpsertInformacionPersonalDto } from './dto/upsert-informacion-personal.dto';
+import { InformacionPersonalCoach } from '../../entities/InformacionPersonalCoach';
+import { UploadApiResponse } from 'cloudinary';
+import { RoutesPathsClodudinary } from '../../common/cloudinary/constants/route-paths.const';
+import { Ficheros } from '../../entities/Ficheros';
+import { AuditLogService } from '../audit-log/audit-log.service';
+import { HistorialTrabajosCoachService } from '../historial-trabajos-coach-service/historial-trabajos-coach-service.service';
+import { IInformacionPersonalCoach } from './interfaces/informacion-personal.interface';
+import { MailService } from '../../common/mail/services/common.mail.service';
+import { IRequestEmail } from '../../common/mail/interfaces';
 
 @Injectable()
 export class CoachService {
@@ -20,6 +30,8 @@ export class CoachService {
   constructor(
     @InjectRepository(InformacionPersonal)
     private readonly _informacionPersonalRepository:Repository<InformacionPersonal>,
+    @InjectRepository(InformacionPersonalCoach)
+    private readonly _informacionPersonalCoachRepository:Repository<InformacionPersonalCoach>,
     private readonly _ficherosService: FicherosService,
     private readonly _errorService: ErrorHandleService,
     private readonly _cloudinaryService: CloudinaryService,
@@ -27,6 +39,10 @@ export class CoachService {
     private readonly _vistaJugadorPerfilService: VistaJugadorPerfilService,
     private readonly _informacionPersonalService: InformacionPersonalService,
     private readonly _favoritosJugadoresCoachService: FavoritosJugadoresCoachService,
+    private readonly _dataSource: DataSource,
+    private readonly _auditLogService: AuditLogService,
+    private readonly _historialEntrenadoresService: HistorialTrabajosCoachService,
+    private readonly _mailService:MailService
   ) { }
 //#endregion
 
@@ -59,6 +75,7 @@ export class CoachService {
           'ip.manoJuego' ,
           'ip.posicionJuegoUnoId' ,
           'ip.posicionJuegoDosId' ,
+          'ip.sexoId',
           // ... selecciona el resto de campos de ip
           
           // 3. Especificar qué campos quieres de la tabla join (Usuario)
@@ -68,7 +85,7 @@ export class CoachService {
 
             // 5. 💡 CAMPOS DE UBICACIÓN (nombres)
           'm.nombre as nombreMunicipio', // Nombre del Municipio
-          'e.nombre as nombreEstado', // Nombre del Estado
+          'e.nombre as nombreEstado' // Nombre del Estado
       ])
       
       // 4. (Opcional) Puedes añadir condiciones WHERE aquí
@@ -77,7 +94,7 @@ export class CoachService {
       // 5. Ejecutar la consulta
       .getRawMany();
 
-      console.log(infoPersonalConUsuario);
+      // console.log(infoPersonalConUsuario);
 
       let nuevaInfo: IListadoJugadores[] = [];
 
@@ -87,6 +104,13 @@ export class CoachService {
           'estatus_busqueda_jugador_id',
           'estatus_busqueda_jugador',
           infoPersonalConUsuario[index].ip_estatus_busqueda_jugador_id
+        );
+
+        // obtengo el estatus del perfil
+        const sexo = await this._catalogoService.getInfoCatalogo(
+          'sexo_id',
+          'sexo',
+          infoPersonalConUsuario[index].ip_sexo_id
         );
   
         // obtengo las posiciones de basketabll
@@ -129,6 +153,7 @@ export class CoachService {
           manoJuego: manoJuego,
           posicionJuegoUno: posicionJuegoUno?.nombre ?? undefined ,
           posicionJuegoDos: posicionJuegoDos?.nombre ?? undefined ,
+          sexo: sexo?.nombre ?? undefined ,
           municipio: infoPersonalConUsuario[index].nombreMunicipio,
           estado: infoPersonalConUsuario[index].nombreEstado,
           interesado: false
@@ -147,10 +172,24 @@ export class CoachService {
         
       }
 
+      const infoFiltrada = nuevaInfo.filter(item =>
+        item.alias?.trim() &&
+        item.manoJuego?.trim() &&
+        item.sexo?.trim() &&
+        item.estatus?.trim() &&
+        item.posicionJuegoUno &&
+        item.posicionJuegoDos &&
+        Number(item.altura) > 0 &&
+        Number(item.peso) > 0
+      );
+
+
+      console.log(nuevaInfo, infoFiltrada);
+
       const response:IResponse<IListadoJugadores[] | undefined> = {
         statusCode: HttpStatus.OK,
         mensaje: 'Información obtenida.',
-        data: nuevaInfo
+        data: infoFiltrada
       }
       // console.log(response);
       return response;
@@ -165,6 +204,9 @@ export class CoachService {
       const existe: boolean = await this._vistaJugadorPerfilService.existeVista(usuarioId, jugadorId);
       if (!existe) {
         await this._vistaJugadorPerfilService.insertaVista(usuarioId, jugadorId);
+        const correo:string = await this.getCorreoJugadorByUsuarioId(jugadorId);
+        await this._mailService.enviarCorreoAlguienVio(correo);
+
       }
 
     } catch (error) {
@@ -182,9 +224,20 @@ export class CoachService {
       if (existe) {
         console.log('llego al if para ACTUALIZAR la favorito');
         await this._favoritosJugadoresCoachService.updateFavorito(usuarioId, jugadorId);
+
+        const jugadorFavoritoo = await this._favoritosJugadoresCoachService.getFavorito(usuarioId, jugadorId);
+        const esInteresado = (jugadorFavoritoo.interesado[0] == 1);
+        if (esInteresado) {
+          const correo:string = await this.getCorreoJugadorByUsuarioId(jugadorId);
+          await this._mailService.enviarCorreoAgregadoFaavorito(correo);
+        }
+
         mensaje = 'Jugador eliminado de favoritos.';
       } else {
         await this._favoritosJugadoresCoachService.insertFavorito(usuarioId, jugadorId);
+        const correo:string = await this.getCorreoJugadorByUsuarioId(jugadorId);
+        await this._mailService.enviarCorreoAgregadoFaavorito(correo);
+
         mensaje = 'Jugador agregado a favoritos.';
       }
 
@@ -227,6 +280,7 @@ export class CoachService {
           'ip.manoJuego' ,
           'ip.posicionJuegoUnoId' ,
           'ip.posicionJuegoDosId' ,
+          'ip.sexoId',
           // ... selecciona el resto de campos de ip
           
           // 3. Especificar qué campos quieres de la tabla join (Usuario)
@@ -245,7 +299,7 @@ export class CoachService {
       // 5. Ejecutar la consulta
       .getRawMany();
 
-      console.log(infoPersonalConUsuario);
+      // console.log(infoPersonalConUsuario);
 
       let nuevaInfo: IListadoJugadores[] = [];
 
@@ -262,6 +316,13 @@ export class CoachService {
           'posicion_juego_id',
           'posicion_juego',
           infoPersonalConUsuario[index].ip_posicion_juego_uno_id
+        );
+
+        // obtengo el estatus del perfil
+        const sexo = await this._catalogoService.getInfoCatalogo(
+          'sexo_id',
+          'sexo',
+          infoPersonalConUsuario[index].ip_sexo_id
         );
   
         const posicionJuegoDos = await this._catalogoService.getInfoCatalogo(
@@ -297,6 +358,7 @@ export class CoachService {
           manoJuego: manoJuego,
           posicionJuegoUno: posicionJuegoUno?.nombre ?? undefined ,
           posicionJuegoDos: posicionJuegoDos?.nombre ?? undefined ,
+          sexo: sexo?.nombre ?? undefined ,
           municipio: infoPersonalConUsuario[index].nombreMunicipio,
           estado: infoPersonalConUsuario[index].nombreEstado,
           interesado: false
@@ -317,10 +379,21 @@ export class CoachService {
 
       const infoFavoritos = nuevaInfo.filter(x => x.interesado === true);
 
+      const infoFiltrada = infoFavoritos.filter(item =>
+        item.alias?.trim() &&
+        item.manoJuego?.trim() &&
+        item.sexo?.trim() &&
+        item.estatus?.trim() &&
+        item.posicionJuegoUno &&
+        item.posicionJuegoDos &&
+        Number(item.altura) > 0 &&
+        Number(item.peso) > 0
+      );
+
       const response:IResponse<IListadoJugadores[] | undefined> = {
         statusCode: HttpStatus.OK,
         mensaje: 'Información obtenida.',
-        data: infoFavoritos
+        data: infoFiltrada
       }
       // console.log(response);
       return response;
@@ -343,6 +416,235 @@ export class CoachService {
       return response;
     } catch (error) {
       this._errorService.errorHandle(error, ErrorMethods.BadRequestException);
+    }
+  }
+
+  async save(usuarioId:number, dto: UpsertInformacionPersonalDto, fotoPerfil?: Express.Multer.File) {
+    const queryRunner = this._dataSource.createQueryRunner();
+
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+    const infoRepo = queryRunner.manager.getRepository(InformacionPersonalCoach);
+
+    try {
+      let fotoPerfilResponse: UploadApiResponse;
+      let ficheroFotoPerfil: Ficheros;
+
+      const existing = await infoRepo.findOneBy({ coachId: usuarioId });
+
+      const datosAntes = existing ? { ...existing } : null;
+
+      // primero guardo foto perfil
+      if (fotoPerfil) {
+        // console.log('llego con foto', fotoPerfil)
+        fotoPerfilResponse = await this._cloudinaryService.uploadFile(fotoPerfil, RoutesPathsClodudinary.IMAGEN_PERFIL);
+        ficheroFotoPerfil = await this._ficherosService.uploadFichero(usuarioId, fotoPerfilResponse, existing.fotoPerfilId ?? 0, RoutesPathsClodudinary.IMAGEN_PERFIL, queryRunner.manager);
+      }
+      
+      if (existing) {
+        // primero hago patch del perfil
+        for (const key in dto) {
+          if (dto[key] !== undefined) {
+            existing[key] = dto[key];
+          }
+        }
+
+        if (ficheroFotoPerfil !== undefined) {
+          existing.fotoPerfilId = ficheroFotoPerfil.ficheroId;
+        }
+
+        // actualizo experiencia
+        const { historialTrabajoCoaches, ...restDto } = dto;
+
+        // patch SOLO campos simples
+        for (const key in restDto) {
+          if (restDto[key] !== undefined) {
+            existing[key] = restDto[key];
+          }
+        }
+
+          // almaceno si existe historial de eventos
+        if (historialTrabajoCoaches.length > 0) {
+          await this._historialEntrenadoresService.delete(existing.informacionPersonalCoachId, queryRunner.manager);
+          await this._historialEntrenadoresService.insert(existing.informacionPersonalCoachId, historialTrabajoCoaches, queryRunner.manager);
+        }
+
+        const toLogService = existing;
+
+        existing.historialTrabajoCoaches = undefined;
+        
+        existing.fechaEdicion = new Date();
+        existing.usuarioEdicion = usuarioId;
+
+        // console.log('antres de cambios', existing);
+
+        // const toUpdate: InformacionPersonalCoach = {
+        //   informacionPersonalCoachId: existing.informacionPersonalCoachId,
+        //   coachId: existing.coachId,
+        //   fotoPerfilId: existing.fotoPerfilId ?? null,
+        //   trabajoActual: existing.trabajoActual,
+        //   personalidad: existing.personalidad,
+        //   valores: existing.valores,
+        //   objetivos: existing.objetivos,
+        //   antiguedad: existing.antiguedad,
+        //   fechaEdicion: existing.fechaEdicion,
+        //   usuarioEdicion: existing.usuarioEdicion
+        // };
+        
+        await infoRepo.save(existing);
+
+        await this._auditLogService.update(queryRunner, {
+          tableName: "informacion_personal_coach",
+          id: existing.informacionPersonalCoachId,
+          before: datosAntes,
+          after: existing,
+          user: toLogService,
+          ip: undefined
+        });
+
+      } else {
+        // nuevo
+        // console.log('llegue al insert de informacion personal coach', ficheroFotoPerfil);
+        const { historialTrabajoCoaches } = dto;
+        const newInfoPersonal = infoRepo.create({
+          coachId: usuarioId,
+          fotoPerfilId: ficheroFotoPerfil?.ficheroId ?? null,
+          trabajoActual: dto.trabajoActual,
+          personalidad: dto.personalidad,
+          valores: dto.valores,
+          objetivos: dto.objetivos,
+          antiguedad: +dto.antiguedad,
+          usuarioCreacion: usuarioId
+        });
+      
+        await infoRepo.create(newInfoPersonal);
+        const savedInfo = await infoRepo.save(newInfoPersonal);
+
+        // almaceno si existe historial de eventos
+        if (historialTrabajoCoaches.length > 0) {
+          await this._historialEntrenadoresService.insert(savedInfo.informacionPersonalCoachId, historialTrabajoCoaches, queryRunner.manager);
+        }
+
+        // Insert audit log
+        await this._auditLogService.insert(queryRunner, {
+          tableName: "informacion_personal_coach",
+          id: savedInfo.informacionPersonalCoachId,
+          after: savedInfo,
+          user: usuarioId,
+          ip: undefined
+        });
+      }
+
+      await queryRunner.commitTransaction();
+
+      const response:IResponse<any> = {
+        statusCode: HttpStatus.CREATED,
+        mensaje: 'Información actualizada.',
+      }
+  
+      return response;
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      this._errorService.errorHandle(error, ErrorMethods.BadRequestException);
+    } finally {
+      await queryRunner.release();
+    }
+  }
+
+  async getInformacionPersonalIdByUsuarioId(usuarioId: number) {
+    try {
+      const informacionPersonalId = await this._informacionPersonalCoachRepository.findOne({
+        where: {coachId: usuarioId},
+        select: {
+          informacionPersonalCoachId: true
+        }
+      });
+      // console.log(informacionPersonalId);
+      return informacionPersonalId.informacionPersonalCoachId;
+    } catch (error) {
+      this._errorService.errorHandle(error, ErrorMethods.BadRequestException);
+    }
+  }
+
+  async getInformacionPersonal(usuarioId: number) {
+    try {
+
+      const informacionPersonalCoachId = await this.getInformacionPersonalIdByUsuarioId(usuarioId);
+
+      // primero la tabla general de informacion personal
+      const infoPersonal = await this._informacionPersonalCoachRepository.findOne({
+        where: {informacionPersonalCoachId: informacionPersonalCoachId},
+        select: {
+          fotoPerfilId: true,
+          coachId: true,
+          trabajoActual: true,
+          personalidad: true,
+          valores: true,
+          objetivos: true,
+          antiguedad: true
+        }
+      });
+
+      // si no existe es primera ves y lo saca
+      if (!infoPersonal) {
+        const response:IResponse<undefined> = {
+          statusCode: HttpStatus.OK,
+          mensaje: 'Usuario sin información personal.',
+          data: undefined
+        }
+        
+        return response;
+      }
+      
+      
+      // obtengo los historial de eventos, entrenadores y logros
+      const historialEquipos = await this._historialEntrenadoresService.getAll(infoPersonal.informacionPersonalCoachId);
+
+      // recupero la foto de perfil
+      const fotoPerfilId = await this._ficherosService.getPublicIdByFicheroId(infoPersonal.fotoPerfilId);
+      const fotoPerfilPublicId = await this._cloudinaryService.getImage(fotoPerfilId);
+
+      const sendInfoPersonal: IInformacionPersonalCoach = {
+        ...infoPersonal,
+        fotoPerfilPublicUrl: fotoPerfilPublicId,
+        historialTrabajoCoaches: historialEquipos
+      }
+
+      const response:IResponse<IInformacionPersonalCoach> = {
+        statusCode: HttpStatus.OK,
+        mensaje: 'Información obtenida.',
+        data: {
+          ...sendInfoPersonal,
+        }
+      }
+      // console.log(response);
+      return response;
+    } catch (error) {
+      this._errorService.errorHandle(error, ErrorMethods.BadRequestException);
+    }
+  }
+
+  private async getCorreoJugadorByUsuarioId(usuarioId: number)
+  {
+    const queryRunner = this._dataSource.createQueryRunner();
+    await queryRunner.connect();
+
+    try {
+      const correo: string = await queryRunner.query(`
+          select
+            u.correo
+          from usuario u
+          where u.estatus_id = 1
+          and u.usuario_id = ${usuarioId}
+        `);
+        console.log(correo, usuarioId);
+      return correo[0]['correo'];
+    } catch (error) {
+      await queryRunner.release();
+      this._errorService.errorHandle(error, ErrorMethods.BadRequestException);
+    }
+    finally {
+      await queryRunner.release();
     }
   }
 

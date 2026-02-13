@@ -8,8 +8,8 @@ import {
 } from "typeorm";
 import { Usuario } from "./Usuario";
 
-@Index("FK_entrenador_id_usuario_id", ["entrenadorId"], {})
 @Index("FK_jugador_id_usuario_id", ["jugadorId"], {})
+@Index("FK_entrenador_id_usuario_id", ["entrenadorId"], {})
 @Entity("vista_jugador_perfil", { schema: "hoop-link" })
 export class VistaJugadorPerfil {
   @PrimaryGeneratedColumn({ type: "int", name: "vista_jugador_perfil_id" })

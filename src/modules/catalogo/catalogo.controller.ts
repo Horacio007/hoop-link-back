@@ -32,4 +32,9 @@ export class CatalogoController {
     return await this.catalogoService.getAllPosicionJugador();
   }
 
+  @Get('getAllSexo')
+  async getAllSexo() {
+    return await this.catalogoService.getAllSexo();
+  }
+
 }

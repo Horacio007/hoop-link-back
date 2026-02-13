@@ -8,12 +8,12 @@ import {
 } from "typeorm";
 import { Usuario } from "./Usuario";
 
-@Index("FK_autor_comentario_id_usuario_id", ["autorComentarioId"], {})
 @Index(
   "FK_perfil_comentado_jugador_id_usuario_id",
   ["perfilComentadoJugadorId"],
   {}
 )
+@Index("FK_autor_comentario_id_usuario_id", ["autorComentarioId"], {})
 @Entity("comentarios_perfil_jugador", { schema: "hoop-link" })
 export class ComentariosPerfilJugador {
   @PrimaryGeneratedColumn({
