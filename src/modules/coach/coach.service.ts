@@ -172,10 +172,24 @@ export class CoachService {
         
       }
 
+      const infoFiltrada = nuevaInfo.filter(item =>
+        item.alias?.trim() &&
+        item.manoJuego?.trim() &&
+        item.sexo?.trim() &&
+        item.estatus?.trim() &&
+        item.posicionJuegoUno &&
+        item.posicionJuegoDos &&
+        Number(item.altura) > 0 &&
+        Number(item.peso) > 0
+      );
+
+
+      console.log(nuevaInfo, infoFiltrada);
+
       const response:IResponse<IListadoJugadores[] | undefined> = {
         statusCode: HttpStatus.OK,
         mensaje: 'Información obtenida.',
-        data: nuevaInfo
+        data: infoFiltrada
       }
       // console.log(response);
       return response;
@@ -365,10 +379,21 @@ export class CoachService {
 
       const infoFavoritos = nuevaInfo.filter(x => x.interesado === true);
 
+      const infoFiltrada = infoFavoritos.filter(item =>
+        item.alias?.trim() &&
+        item.manoJuego?.trim() &&
+        item.sexo?.trim() &&
+        item.estatus?.trim() &&
+        item.posicionJuegoUno &&
+        item.posicionJuegoDos &&
+        Number(item.altura) > 0 &&
+        Number(item.peso) > 0
+      );
+
       const response:IResponse<IListadoJugadores[] | undefined> = {
         statusCode: HttpStatus.OK,
         mensaje: 'Información obtenida.',
-        data: infoFavoritos
+        data: infoFiltrada
       }
       // console.log(response);
       return response;
