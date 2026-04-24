@@ -29,7 +29,7 @@ export class AuthService {
     const {contrasena, correo} = loginDto;
 
     const user = await this.usuarioRepository.findOne({
-      where : {correo, estatusId: 1},
+      where : {correo, estatusId: 1, verificado: true},
       select: {usuarioId:true, nombre:true, correo:true, contrasena: true}
     });
 
