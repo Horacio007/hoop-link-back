@@ -62,7 +62,7 @@ export class CoachController {
     @User() user: JwtPayload
   ): Promise<IResponse<any>> {
     try {
-        console.log(user);
+        console.log(user, datosJson, fotoPerfil);
       // Convertir string JSON a objeto
       let dto: UpsertInformacionPersonalDto;
       dto = JSON.parse(datosJson);
