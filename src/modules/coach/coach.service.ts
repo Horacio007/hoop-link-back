@@ -429,16 +429,16 @@ export class CoachService {
     try {
       let fotoPerfilResponse: UploadApiResponse;
       let ficheroFotoPerfil: Ficheros;
-
+      console.log(usuarioId);
       const existing = await infoRepo.findOneBy({ coachId: usuarioId });
 
       const datosAntes = existing ? { ...existing } : null;
 
       // primero guardo foto perfil
       if (fotoPerfil) {
-        // console.log('llego con foto', fotoPerfil)
+        console.log('llego con foto', fotoPerfil, existing);
         fotoPerfilResponse = await this._cloudinaryService.uploadFile(fotoPerfil, RoutesPathsClodudinary.IMAGEN_PERFIL);
-        ficheroFotoPerfil = await this._ficherosService.uploadFichero(usuarioId, fotoPerfilResponse, existing.fotoPerfilId ?? 0, RoutesPathsClodudinary.IMAGEN_PERFIL, queryRunner.manager);
+        ficheroFotoPerfil = await this._ficherosService.uploadFichero(usuarioId, fotoPerfilResponse, existing?.fotoPerfilId ?? 0, RoutesPathsClodudinary.IMAGEN_PERFIL, queryRunner.manager);
       }
       
       if (existing) {
@@ -544,6 +544,7 @@ export class CoachService {
   
       return response;
     } catch (error) {
+      console.log('llegue al error', error);
       await queryRunner.rollbackTransaction();
       this._errorService.errorHandle(error, ErrorMethods.BadRequestException);
     } finally {
